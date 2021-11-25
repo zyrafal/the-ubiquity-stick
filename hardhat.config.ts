@@ -53,12 +53,13 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      // loggingEnabled: true,
-      // forking: {
-      //   // url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      //   url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      //   blockNumber: 18000000
-      // },
+      chainId: 1,
+      loggingEnabled: true,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        // url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 13_000_000
+      },
       accounts: [
         {
           privateKey: process.env.PRIVATE_KEY_TEST_1 || "",

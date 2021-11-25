@@ -3,18 +3,29 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./interfaces/IUBQManager.sol";
 
-contract NftPass is ERC721, ERC721Burnable, Ownable {
+contract NftPass is ERC721, ERC721Burnable {
   using Counters for Counters.Counter;
-
-  string private _tokenURI;
   Counters.Counter private _tokenIdCounter;
 
-  constructor() ERC721("The UbiquiStick", "KEY") {}
+  address public manager;
+  string private _tokenURI;
 
-  function safeMint(address to) public onlyOwner {
+  modifier onlyMinter() {
+    require(
+      IUBQManager(manager).hasRole(IUBQManager(manager).UBQ_MINTER_ROLE(), msg.sender),
+      "Governance token: not minter"
+    );
+    _;
+  }
+
+  constructor(address _manager) ERC721("The UbiquiStick", "KEY") {
+    manager = _manager;
+  }
+
+  function safeMint(address to) public onlyMinter {
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
     _safeMint(to, tokenId);
@@ -29,7 +40,7 @@ contract NftPass is ERC721, ERC721Burnable, Ownable {
     super._burn(tokenId);
   }
 
-  function setTokenURI(string memory tokenURI_) public onlyOwner {
+  function setTokenURI(string memory tokenURI_) public onlyMinter {
     _tokenURI = tokenURI_;
   }
 }
