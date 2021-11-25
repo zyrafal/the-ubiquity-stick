@@ -12,7 +12,7 @@ contract NftPass is ERC721, ERC721Burnable, Ownable {
   string private _tokenURI;
   Counters.Counter private _tokenIdCounter;
 
-  constructor() ERC721("NFT Pass", "PASS") {}
+  constructor() ERC721("The UbiquiStick", "KEY") {}
 
   function safeMint(address to) public onlyOwner {
     uint256 tokenId = _tokenIdCounter.current();
