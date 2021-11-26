@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers, deployments, getNamedAccounts } from "hardhat";
+import { ethers, deployments, getNamedAccounts, network, getUnnamedAccounts } from "hardhat";
 import { Signer } from "ethers";
 import { NftPass } from "../artifacts/types/NftPass";
 
@@ -16,17 +16,29 @@ import { NftPass } from "../artifacts/types/NftPass";
 // - allow NFT owner to burn it’s own NFT
 // - allow owner with UBQ minter role to change tokenURI (used for all NFTs)
 // - allow owner with UBQ minter role to mint NFT
-// - allow owner with UBQ minter role to transfer it’s ownership of the contract
 
 describe("NftPass", function () {
-  let signer: Signer;
-  let signerAddress: string;
+  let minterSigner: Signer;
+  let tester1Signer: Signer;
   let nftPass: NftPass;
+  let tester1: string;
+  let tester2: string;
+  let random: string;
+  const minter = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 
   before(async () => {
-    signer = (await ethers.getSigners())[0];
-    signerAddress = await signer.getAddress();
-    console.log("signer", signerAddress, "\n");
+    ({ tester1, tester2, random } = await getNamedAccounts());
+
+    await network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [minter]
+    });
+    minterSigner = ethers.provider.getSigner(minter);
+    await network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [tester1]
+    });
+    tester1Signer = ethers.provider.getSigner(tester1);
 
     // DEPLOY NFTPass contract if not already
     if (!(await ethers.getContractOrNull("NftPass"))) {
@@ -35,20 +47,15 @@ describe("NftPass", function () {
     }
 
     // GET NFTPass contract
-    nftPass = await ethers.getContract("NftPass", signer);
+    nftPass = await ethers.getContract("NftPass", minterSigner);
     console.log("contract", nftPass.address, "\n");
 
     // MINT 2 NFTs
-    const { tester1, tester2 } = await getNamedAccounts();
-    console.log("tester1", tester1);
     await nftPass.safeMint(tester1);
     await nftPass.safeMint(tester2);
   });
 
-  afterEach(async () => {});
-
   it("Should be ok", async function () {
-    expect(signerAddress).to.be.properAddress;
     expect(nftPass.address).to.be.properAddress;
   });
 
@@ -65,7 +72,36 @@ describe("NftPass", function () {
   });
 
   it("Check that tokenURI is uniq", async function () {
-    await nftPass.tokenURI(0);
-    // expect(await nftPass.tokenURI(0)).to.be.equal(await nftPass.tokenURI(1));
+    expect(await nftPass.tokenURI(0)).to.be.equal(await nftPass.tokenURI(1));
+  });
+
+  it("Check balanceOf", async function () {
+    expect(await nftPass.balanceOf(tester1)).to.be.equal(1);
+    expect(await nftPass.balanceOf(tester2)).to.be.equal(1);
+    expect(await nftPass.balanceOf(random)).to.be.equal(0);
+  });
+
+  it("Check ownerOf", async function () {
+    expect(await nftPass.ownerOf(0)).to.be.equal(tester1);
+    expect(await nftPass.ownerOf(1)).to.be.equal(tester2);
+    await expect(nftPass.ownerOf(2)).to.be.revertedWith("ERC721: owner query for nonexistent token");
+  });
+
+  it("Check mint", async function () {
+    await expect(nftPass.connect(minterSigner).safeMint(tester1)).to.be.not.reverted;
+    await expect(nftPass.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
+  });
+
+  it("Check burn", async function () {
+    await expect(nftPass.connect(tester1Signer).burn(0)).to.be.not.reverted;
+    await expect(nftPass.burn(0)).to.be.revertedWith("'ERC721: operator query for nonexistent token");
+    await expect(nftPass.burn(10)).to.be.revertedWith("'ERC721: operator query for nonexistent token");
+    await expect(nftPass.burn(1)).to.be.revertedWith("ERC721Burnable: caller is not owner nor approved");
+  });
+
+  it("Check setTokenURI", async function () {
+    await expect(nftPass.connect(minterSigner).setTokenURI("newUri")).to.be.not.reverted;
+    expect(await nftPass.tokenURI(1)).to.be.equal("newUri");
+    await expect(nftPass.connect(tester1Signer).setTokenURI("newUri")).to.be.reverted;
   });
 });

@@ -36,10 +36,6 @@ contract NftPass is ERC721, ERC721Burnable {
     return _tokenURI;
   }
 
-  function _burn(uint256 tokenId) internal override(ERC721) {
-    super._burn(tokenId);
-  }
-
   function setTokenURI(string memory tokenURI_) public onlyMinter {
     _tokenURI = tokenURI_;
   }

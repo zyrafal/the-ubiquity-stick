@@ -25,6 +25,10 @@ const accounts = [
   process.env.PRIVATE_KEY_TEST_3 || "",
   process.env.PRIVATE_KEY_TEST_4 || ""
 ];
+const accountsHardhat = accounts.map((account) => ({
+  privateKey: account,
+  balance: "100000000000000000000"
+}));
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -54,26 +58,17 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       chainId: 1,
-      loggingEnabled: true,
+      // loggingEnabled: true,
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
         // url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
         blockNumber: 13_000_000
       },
-      accounts: [
-        {
-          privateKey: process.env.PRIVATE_KEY_TEST_1 || "",
-          balance: "100000000000000000000"
-        },
-        {
-          privateKey: process.env.PRIVATE_KEY_TEST_2 || "",
-          balance: "100000000000000000000"
-        }
-      ],
+      accounts: accountsHardhat,
       initialBaseFeePerGas: 0
     },
     local: {
-      chainId: 31337,
+      chainId: 1,
       url: "http://127.0.0.1:8545"
     },
     mainnet: {
