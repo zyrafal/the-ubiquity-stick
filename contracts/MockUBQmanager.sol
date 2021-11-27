@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract UbiquityAlgorithmicDollarManager is AccessControl {
+contract MockUBQmanager is AccessControl {
   bytes32 public constant UBQ_MINTER_ROLE = keccak256("UBQ_MINTER_ROLE");
 
   constructor() {

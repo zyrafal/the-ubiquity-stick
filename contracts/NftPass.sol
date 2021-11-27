@@ -3,13 +3,10 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interfaces/IUBQManager.sol";
 
 contract NftPass is ERC721, ERC721Burnable {
-  using Counters for Counters.Counter;
-  Counters.Counter private _tokenIdCounter;
-
+  uint256 public tokenIdCounter;
   address public manager;
   string private _tokenURI;
 
@@ -26,8 +23,8 @@ contract NftPass is ERC721, ERC721Burnable {
   }
 
   function safeMint(address to) public onlyMinter {
-    uint256 tokenId = _tokenIdCounter.current();
-    _tokenIdCounter.increment();
+    uint256 tokenId = tokenIdCounter;
+    tokenIdCounter += 1;
     _safeMint(to, tokenId);
   }
 

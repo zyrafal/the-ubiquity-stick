@@ -23,18 +23,21 @@ const accounts = [
   process.env.PRIVATE_KEY_TEST_1 || "",
   process.env.PRIVATE_KEY_TEST_2 || "",
   process.env.PRIVATE_KEY_TEST_3 || "",
-  process.env.PRIVATE_KEY_TEST_4 || ""
+  process.env.PRIVATE_KEY_TEST_4 || "",
+  process.env.PRIVATE_KEY_TEST_5 || ""
 ];
 const accountsHardhat = accounts.map((account) => ({
   privateKey: account,
   balance: "100000000000000000000"
 }));
 
+const ubq = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
+
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   namedAccounts: {
-    admin: { default: 0 },
-    deployer: { default: 0 },
+    deployer: { default: 0, mainnet: ubq },
+    minter: { default: 0, mainnet: ubq, hardhat: ubq },
     tester1: { default: 1 },
     tester2: { default: 2 },
     random: { default: 3 }
@@ -83,6 +86,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     rinkeby: {
+      loggingEnabled: true,
       chainId: 4,
       // url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
