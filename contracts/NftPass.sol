@@ -6,34 +6,49 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "./interfaces/IUBQManager.sol";
 
 contract NftPass is ERC721, ERC721Burnable {
-  uint256 public tokenIdCounter;
-  address public manager;
+  uint256 public tokenIdNext;
+  address private _manager;
   string private _tokenURI;
+
+  mapping(uint256 => bool) public gold;
+  string private _tokenGoldURI;
+  uint256 private randomfreq = 64;
 
   modifier onlyMinter() {
     require(
-      IUBQManager(manager).hasRole(IUBQManager(manager).UBQ_MINTER_ROLE(), msg.sender),
+      IUBQManager(_manager).hasRole(IUBQManager(_manager).UBQ_MINTER_ROLE(), msg.sender),
       "Governance token: not minter"
     );
     _;
   }
 
-  constructor(address _manager) ERC721("The UbiquiStick", "KEY") {
-    manager = _manager;
+  constructor(address manager_) ERC721("The UbiquiStick", "KEY") {
+    _manager = manager_;
   }
 
   function safeMint(address to) public onlyMinter {
-    uint256 tokenId = tokenIdCounter;
-    tokenIdCounter += 1;
+    uint256 tokenId = tokenIdNext;
+    tokenIdNext += 1;
+    if (random() % uint256(randomfreq) == 0) {
+      gold[tokenId] = true;
+    }
     _safeMint(to, tokenId);
   }
 
   function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory) {
     require(_exists(tokenId), "Nonexistent token");
-    return _tokenURI;
+    return gold[tokenId] ? _tokenGoldURI : _tokenURI;
   }
 
   function setTokenURI(string memory tokenURI_) public onlyMinter {
     _tokenURI = tokenURI_;
+  }
+
+  function setTokenGoldURI(string memory tokenGoldURI_) public onlyMinter {
+    _tokenGoldURI = tokenGoldURI_;
+  }
+
+  function random() private view returns (uint256) {
+    return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
   }
 }

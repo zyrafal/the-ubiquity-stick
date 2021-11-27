@@ -17,6 +17,8 @@ import { NftPass } from "../artifacts/types/NftPass";
 // - allow owner with UBQ minter role to change tokenURI (used for all NFTs)
 // - allow owner with UBQ minter role to mint NFT
 
+// Add Gold ones
+
 describe("NftPass", function () {
   let minterSigner: Signer;
   let tester1Signer: Signer;
@@ -31,13 +33,13 @@ describe("NftPass", function () {
 
   before(async () => {
     const chainId = Number(await getChainId());
-    console.log("network", chainId, network?.name, network?.live);
+    console.log("network", chainId, network.name, network.live);
 
     const namedAccounts = await getNamedAccounts();
     ({ minter, tester1, tester2, random } = namedAccounts);
     console.log("NamedAccounts", namedAccounts);
 
-    if (network?.name === "hardhat") {
+    if (network.name === "hardhat") {
       console.log("impersonating minter and tester1");
       await network.provider.request({
         method: "hardhat_impersonateAccount",
@@ -61,7 +63,7 @@ describe("NftPass", function () {
     nftPass = await ethers.getContract("NftPass", minterSigner);
     console.log("contract", nftPass.address);
 
-    tokenIdStart = Number(await nftPass.tokenIdCounter());
+    tokenIdStart = Number(await nftPass.tokenIdNext());
     console.log("tokenIdStart", tokenIdStart);
 
     // MINT 2 NFTs
@@ -110,17 +112,43 @@ describe("NftPass", function () {
 
   it("Check burn", async function () {
     await expect(nftPass.connect(tester1Signer).burn(tokenIdStart)).to.be.not.reverted;
-    await expect(nftPass.connect(tester1Signer).burn(tokenIdStart + 1)).to.be.reverted;
-    // With("ERC721Burnable: caller is not owner nor approved");
-    // With("ProviderError: execution reverted: ERC721Burnable: caller is not owner nor approved");
-    await expect(nftPass.connect(minterSigner).burn(999)).to.be.reverted;
-    // With("ERC721: operator query for nonexistent token");
-    // With("ProviderError: execution reverted: ERC721: operator query for nonexistent token");
+    await expect(nftPass.connect(tester1Signer).burn(tokenIdStart + 1)).to.be.revertedWith(
+      "ERC721Burnable: caller is not owner nor approved"
+    );
+    await expect(nftPass.connect(minterSigner).burn(999)).to.be.revertedWith(
+      "ERC721: operator query for nonexistent token"
+    );
   });
 
-  it("Check setTokenURI", async function () {
-    await expect(nftPass.connect(minterSigner).setTokenURI("newUri")).to.be.not.reverted;
-    expect(await nftPass.tokenURI(tokenIdStart + 1)).to.be.equal("newUri");
+  it("Check setTokenURI and setTokenGoldURI", async function () {
+    await expect((await nftPass.connect(minterSigner).setTokenURI("newUri")).wait()).to.be.not.reverted;
+    await expect((await nftPass.connect(minterSigner).setTokenGoldURI("newGoldUri")).wait()).to.be.not.reverted;
+    expect(await nftPass.tokenURI(tokenIdStart + 1)).to.be.oneOf(["newUri", "newGoldUri"]);
     await expect(nftPass.connect(tester1Signer).setTokenURI("newUri")).to.be.reverted;
+    await expect(nftPass.connect(tester1Signer).setTokenGoldURI("newUri")).to.be.reverted;
   });
+
+  if (network.name === "hardhat") {
+    it("Check randomness 1 out of 64, about 1.5%", async function () {
+      const nn = 1000;
+
+      const tokenIdMin = Number(await nftPass.tokenIdNext());
+      for (let i = tokenIdMin; i < tokenIdMin + nn; i++) {
+        await (await nftPass.connect(minterSigner).safeMint(tester1)).wait();
+      }
+      expect(await nftPass.balanceOf(tester1)).to.be.gte(nn);
+
+      const tokenIdMax = Number(await nftPass.tokenIdNext());
+      expect(tokenIdMax).to.be.equal(tokenIdMin + nn);
+      console.log("nTotal", nn);
+
+      let nGold = 0;
+      for (let i = tokenIdMin; i < tokenIdMax; i++) (await nftPass.gold(i)) && nGold++;
+      console.log("nGold ", nGold);
+
+      const ratio = (100 * nGold) / nn;
+      console.log("ratio ", ratio, "%");
+      expect(ratio).to.be.gt(1).and.to.be.lt(3);
+    });
+  }
 });
