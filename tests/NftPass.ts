@@ -7,17 +7,16 @@ import { NftPass } from "../artifacts/types/NftPass";
 // - get all ERC721 functionnality https://eips.ethereum.org/EIPS/eip-721
 //   - including optional ERC721Metadata
 //     but without metadata JSON schema
-//     all NFTs having same metadata (uniq tokenURI)
+//     2 types of NFTs : standard and gold, each one having same metadata
+//     2 different tokenURIs :  tokenURI or tokenGOldURI
 //   - excluding optional ERC721Enumerable
 //     but NFT tokenID increments starting from 0, so easy to enumerate
 //   - including check that someone as a NFT of the collection with « balanceOf »
 //   - including check who is TokenID owner with « ownerOf »
 // - get you NFT listed on OpenSea (on mainnet or matic only)
 // - allow NFT owner to burn it’s own NFT
-// - allow owner with UBQ minter role to change tokenURI (used for all NFTs)
+// - allow owner with UBQ minter role to change tokenURI or tokenGoldURI
 // - allow owner with UBQ minter role to mint NFT
-
-// Add Gold ones
 
 describe("NftPass", function () {
   let minterSigner: Signer;
@@ -130,7 +129,7 @@ describe("NftPass", function () {
 
   if (network.name === "hardhat") {
     it("Check randomness 1 out of 64, about 1.5%", async function () {
-      const nn = 1000;
+      const nn = 1024;
 
       const tokenIdMin = Number(await nftPass.tokenIdNext());
       for (let i = tokenIdMin; i < tokenIdMin + nn; i++) {
@@ -143,8 +142,13 @@ describe("NftPass", function () {
       console.log("nTotal", nn);
 
       let nGold = 0;
-      for (let i = tokenIdMin; i < tokenIdMax; i++) (await nftPass.gold(i)) && nGold++;
-      console.log("nGold ", nGold);
+      let goldies = "";
+      for (let i = tokenIdMin; i < tokenIdMax; i++)
+        if (await nftPass.gold(i)) {
+          goldies += ` ${i}`;
+          nGold++;
+        }
+      console.log("nGold", nGold, goldies);
 
       const ratio = (100 * nGold) / nn;
       console.log("ratio ", ratio, "%");
