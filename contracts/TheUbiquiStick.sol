@@ -21,6 +21,8 @@ contract TheUbiquityStick is ERC721, ERC721Burnable {
   uint256 private constant INVISIBLE_TOKEN_ID = 42;
   uint256 private constant INVISIBLE_TYPE = 2;
 
+  event Mint(address to, uint256 tokenId);
+
   modifier onlyMinter() {
     require(
       IUBQManager(_manager).hasRole(IUBQManager(_manager).UBQ_MINTER_ROLE(), msg.sender),
@@ -31,6 +33,15 @@ contract TheUbiquityStick is ERC721, ERC721Burnable {
 
   constructor(address manager_) ERC721("The UbiquiStick", "KEY") {
     _manager = manager_;
+  }
+
+  function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory uri) {
+    require(_exists(tokenId), "Nonexistent token");
+    return gold[tokenId] ? _goldTokenURI : (tokenId == INVISIBLE_TOKEN_ID ? _invisibleTokenURI : _tokenURI);
+  }
+
+  function random() private view returns (uint256) {
+    return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
   }
 
   function safeMint(address to) public onlyMinter {
@@ -44,11 +55,6 @@ contract TheUbiquityStick is ERC721, ERC721Burnable {
     _safeMint(to, tokenId);
   }
 
-  function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory uri) {
-    require(_exists(tokenId), "Nonexistent token");
-    return gold[tokenId] ? _goldTokenURI : (tokenId == INVISIBLE_TOKEN_ID ? _invisibleTokenURI : _tokenURI);
-  }
-
   function setTokenURI(string memory tokenURI_, uint256 ntype) public onlyMinter {
     if (ntype == STANDARD_TYPE) {
       _tokenURI = tokenURI_;
@@ -57,9 +63,5 @@ contract TheUbiquityStick is ERC721, ERC721Burnable {
     } else if (ntype == INVISIBLE_TYPE) {
       _invisibleTokenURI = tokenURI_;
     }
-  }
-
-  function random() private view returns (uint256) {
-    return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
   }
 }

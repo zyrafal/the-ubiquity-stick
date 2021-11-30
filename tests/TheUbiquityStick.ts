@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers, deployments, getNamedAccounts, network, getChainId } from "hardhat";
 import { Signer } from "ethers";
 import { TheUbiquityStick } from "../artifacts/types/TheUbiquityStick";
+import json from "../metadata/json.json";
 
 // With "The UbiquiStick" NFT contract you can :
 // - get all ERC721 functionnality https://eips.ethereum.org/EIPS/eip-721
@@ -19,6 +20,10 @@ import { TheUbiquityStick } from "../artifacts/types/TheUbiquityStick";
 // - allow owner with UBQ minter role to mint NFT
 
 describe("TheUbiquityStick", function () {
+  const standardJson = json["standard.json"];
+  const goldJson = json["gold.json"];
+  const invisibleJson = json["invisible.json"];
+
   let minterSigner: Signer;
   let tester1Signer: Signer;
   let theUbiquityStick: TheUbiquityStick;
@@ -64,13 +69,9 @@ describe("TheUbiquityStick", function () {
 
     tokenIdStart = Number(await theUbiquityStick.tokenIdNext());
     console.log("tokenIdStart", tokenIdStart);
-
-    // MINT 2 NFTs
-    await (await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait();
-    await (await theUbiquityStick.connect(minterSigner).safeMint(tester2)).wait();
   });
 
-  it("Should be ok", async function () {
+  it("Check contract ok", async function () {
     expect(theUbiquityStick.address).to.be.properAddress;
   });
 
@@ -86,14 +87,16 @@ describe("TheUbiquityStick", function () {
     expect(await theUbiquityStick.supportsInterface(ERC721Enumerable)).to.be.false;
   });
 
-  it("Check that tokenURI is uniq", async function () {
-    const tokenURI0 = await theUbiquityStick.tokenURI(tokenIdStart);
-    const tokenURI1 = await theUbiquityStick.tokenURI(tokenIdStart + 1);
-    expect(tokenURI0).to.be.equal(tokenURI1);
+  it("Check mint", async function () {
+    // 1 NFT for tester 2 and 2 NFTs for tester1 , second one will be burn
+    await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait()).to.be.not.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester2)).wait()).to.be.not.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait()).to.be.not.reverted;
+    await expect(theUbiquityStick.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
   });
 
   it("Check balanceOf", async function () {
-    expect(await theUbiquityStick.balanceOf(tester1)).to.be.gte(1);
+    expect(await theUbiquityStick.balanceOf(tester1)).to.be.gte(2);
     expect(await theUbiquityStick.balanceOf(tester2)).to.be.gte(1);
     expect(await theUbiquityStick.balanceOf(random)).to.be.equal(0);
   });
@@ -101,16 +104,17 @@ describe("TheUbiquityStick", function () {
   it("Check ownerOf", async function () {
     expect(await theUbiquityStick.ownerOf(tokenIdStart)).to.be.equal(tester1);
     expect(await theUbiquityStick.ownerOf(tokenIdStart + 1)).to.be.equal(tester2);
+    expect(await theUbiquityStick.ownerOf(tokenIdStart + 2)).to.be.equal(tester1);
+    await expect(theUbiquityStick.ownerOf(0)).to.be.revertedWith("ERC721: owner query for nonexistent token");
+    await expect(theUbiquityStick.ownerOf(1)).to.be.not.reverted;
     await expect(theUbiquityStick.ownerOf(999)).to.be.revertedWith("ERC721: owner query for nonexistent token");
   });
 
-  it("Check mint", async function () {
-    await expect(theUbiquityStick.connect(minterSigner).safeMint(tester1)).to.be.not.reverted;
-    await expect(theUbiquityStick.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
-  });
-
   it("Check burn", async function () {
-    await expect(theUbiquityStick.connect(tester1Signer).burn(tokenIdStart)).to.be.not.reverted;
+    await expect((await theUbiquityStick.connect(tester1Signer).burn(tokenIdStart + 2)).wait()).to.be.not.reverted;
+    await expect(theUbiquityStick.connect(tester1Signer).burn(tokenIdStart + 2)).to.be.revertedWith(
+      "ERC721: operator query for nonexistent token"
+    );
     await expect(theUbiquityStick.connect(tester1Signer).burn(tokenIdStart + 1)).to.be.revertedWith(
       "ERC721Burnable: caller is not owner nor approved"
     );
@@ -120,11 +124,13 @@ describe("TheUbiquityStick", function () {
   });
 
   it("Check setTokenURI", async function () {
-    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI("newUri", 0)).wait()).to.be.not.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI("newGoldUri", 1)).wait()).to.be.not.reverted;
-    expect(await theUbiquityStick.tokenURI(tokenIdStart + 1)).to.be.oneOf(["newUri", "newGoldUri"]);
-    await expect(theUbiquityStick.connect(tester1Signer).setTokenURI("newUri", 0)).to.be.reverted;
-    await expect(theUbiquityStick.connect(tester1Signer).setTokenURI("newUri", 1)).to.be.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI(standardJson, 0)).wait()).to.be.not.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI(goldJson, 1)).wait()).to.be.not.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI(invisibleJson, 2)).wait()).to.be.not
+      .reverted;
+    expect(await theUbiquityStick.tokenURI(tokenIdStart + 1)).to.be.oneOf([standardJson, goldJson, invisibleJson]);
+    await expect(theUbiquityStick.connect(tester1Signer).setTokenURI(standardJson, 0)).to.be.reverted;
+    await expect(theUbiquityStick.connect(tester1Signer).setTokenURI(standardJson, 1)).to.be.reverted;
   });
 
   it("Check randomness 1 out of 64, about 1.5%", async function () {
