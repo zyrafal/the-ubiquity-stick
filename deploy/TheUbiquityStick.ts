@@ -14,7 +14,7 @@ const func: DeployFunction = async function ({ getChainId, deployments, getNamed
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    await deploy("NftPass", {
+    await deploy("TheUbiquityStick", {
       from: deployer,
       args: [managerAddress],
       log: true
@@ -25,4 +25,4 @@ const func: DeployFunction = async function ({ getChainId, deployments, getNamed
 };
 export default func;
 
-func.tags = ["NftPass"];
+func.tags = ["TheUbiquityStick"];
