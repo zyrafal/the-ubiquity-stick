@@ -5,14 +5,21 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "./interfaces/IUBQManager.sol";
 
-contract NftPass is ERC721, ERC721Burnable {
-  uint256 public tokenIdNext;
+contract TheUbiquityStick is ERC721, ERC721Burnable {
   address private _manager;
-  string private _tokenURI;
+  uint256 public tokenIdNext = 1;
 
+  string private _tokenURI;
+  uint256 private constant STANDARD_TYPE = 0;
+
+  string private _goldTokenURI;
   mapping(uint256 => bool) public gold;
-  string private _tokenGoldURI;
-  uint256 private randomfreq = 64;
+  uint256 private constant GOLD_FREQ = 64;
+  uint256 private constant GOLD_TYPE = 1;
+
+  string private _invisibleTokenURI;
+  uint256 private constant INVISIBLE_TOKEN_ID = 42;
+  uint256 private constant INVISIBLE_TYPE = 2;
 
   modifier onlyMinter() {
     require(
@@ -29,23 +36,27 @@ contract NftPass is ERC721, ERC721Burnable {
   function safeMint(address to) public onlyMinter {
     uint256 tokenId = tokenIdNext;
     tokenIdNext += 1;
-    if (random() % uint256(randomfreq) == 0) {
-      gold[tokenId] = true;
+
+    // Gold one
+    if (random() % uint256(GOLD_FREQ) == 0) {
+      if (tokenId != INVISIBLE_TOKEN_ID) gold[tokenId] = true;
     }
     _safeMint(to, tokenId);
   }
 
-  function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory) {
+  function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory uri) {
     require(_exists(tokenId), "Nonexistent token");
-    return gold[tokenId] ? _tokenGoldURI : _tokenURI;
+    return gold[tokenId] ? _goldTokenURI : (tokenId == INVISIBLE_TOKEN_ID ? _invisibleTokenURI : _tokenURI);
   }
 
-  function setTokenURI(string memory tokenURI_) public onlyMinter {
-    _tokenURI = tokenURI_;
-  }
-
-  function setTokenGoldURI(string memory tokenGoldURI_) public onlyMinter {
-    _tokenGoldURI = tokenGoldURI_;
+  function setTokenURI(string memory tokenURI_, uint256 ntype) public onlyMinter {
+    if (ntype == STANDARD_TYPE) {
+      _tokenURI = tokenURI_;
+    } else if (ntype == GOLD_TYPE) {
+      _goldTokenURI = tokenURI_;
+    } else if (ntype == INVISIBLE_TYPE) {
+      _invisibleTokenURI = tokenURI_;
+    }
   }
 
   function random() private view returns (uint256) {
