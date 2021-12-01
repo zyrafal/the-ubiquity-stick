@@ -3,11 +3,12 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "./interfaces/IUBQManager.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TheUbiquityStick is ERC721, ERC721Burnable {
-  address private _manager;
+contract TheUbiquityStick is ERC721, ERC721Burnable, Ownable {
   uint256 public tokenIdNext = 1;
+
+  address public minter;
 
   string private _tokenURI;
   uint256 private constant STANDARD_TYPE = 0;
@@ -21,18 +22,13 @@ contract TheUbiquityStick is ERC721, ERC721Burnable {
   uint256 private constant INVISIBLE_TOKEN_ID = 42;
   uint256 private constant INVISIBLE_TYPE = 2;
 
-  event Mint(address to, uint256 tokenId);
-
   modifier onlyMinter() {
-    require(
-      IUBQManager(_manager).hasRole(IUBQManager(_manager).UBQ_MINTER_ROLE(), msg.sender),
-      "Governance token: not minter"
-    );
+    require(msg.sender == minter, "Not minter");
     _;
   }
 
-  constructor(address manager_) ERC721("The UbiquiStick", "KEY") {
-    _manager = manager_;
+  constructor() ERC721("The UbiquiStick", "KEY") {
+    setMinter(msg.sender);
   }
 
   function tokenURI(uint256 tokenId) public view override(ERC721) returns (string memory uri) {
@@ -42,6 +38,10 @@ contract TheUbiquityStick is ERC721, ERC721Burnable {
 
   function random() private view returns (uint256) {
     return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
+  }
+
+  function setMinter(address minter_) public onlyOwner {
+    minter = minter_;
   }
 
   function safeMint(address to) public onlyMinter {

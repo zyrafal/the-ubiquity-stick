@@ -33,7 +33,6 @@ describe("TheUbiquityStick", function () {
   let tester1: string;
   let tester2: string;
   let random: string;
-  // const minter = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 
   before(async () => {
     const chainId = Number(await getChainId());
@@ -73,6 +72,7 @@ describe("TheUbiquityStick", function () {
 
   it("Check contract ok", async function () {
     expect(theUbiquityStick.address).to.be.properAddress;
+    expect(await theUbiquityStick.owner()).to.be.properAddress;
   });
 
   it("Check with ERC165 that theUbiquityStick is ERC721, ERC721Metadata compatible and not ERC721Enumerable, ERC721TokenReceiver", async function () {
@@ -93,6 +93,14 @@ describe("TheUbiquityStick", function () {
     await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester2)).wait()).to.be.not.reverted;
     await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait()).to.be.not.reverted;
     await expect(theUbiquityStick.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
+  });
+
+  it("Check setMinter", async function () {
+    await expect(theUbiquityStick.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).setMinter(tester1)).wait()).to.be.not.reverted;
+    await expect((await theUbiquityStick.connect(tester1Signer).safeMint(tester1)).wait()).to.be.not.reverted;
+    await expect(theUbiquityStick.connect(minterSigner).safeMint(tester1)).to.be.reverted;
+    await expect((await theUbiquityStick.connect(minterSigner).setMinter(minter)).wait()).to.be.not.reverted;
   });
 
   it("Check balanceOf", async function () {
