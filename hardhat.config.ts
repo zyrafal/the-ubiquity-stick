@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   namedAccounts: {
     deployer: { default: 0, mainnet: ubq },
-    minter: { default: 0, mainnet: ubq, hardhat: ubq },
+    minter: { default: 0, mainnet: ubq },
     tester1: { default: 1 },
     tester2: { default: 2 },
     random: { default: 3 }
