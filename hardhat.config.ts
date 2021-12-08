@@ -88,10 +88,10 @@ const config: HardhatUserConfig = {
     rinkeby: {
       loggingEnabled: true,
       chainId: 4,
-      // url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts,
-      gasPrice: 20_000_000_000
+      // url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      // gasPrice: 20_000_000_000
+      accounts
     },
     goerli: {
       chainId: 5,
@@ -115,10 +115,10 @@ const config: HardhatUserConfig = {
     },
     matic: {
       chainId: 137,
-      // url: `https://rpc-mainnet.maticvigil.com/v1/${process.env.MATICVIGIL_API_KEY}`,
       url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts,
-      gasPrice: 50_000_000_000
+      // url: `https://rpc-mainnet.maticvigil.com/v1/${process.env.MATICVIGIL_API_KEY}`,
+      // gasPrice: 50_000_000_000
+      accounts
     },
     avalanche: {
       chainId: 43114,
@@ -134,8 +134,8 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
       // url: `https://rpc-mumbai.maticvigil.com/v1/${process.env.MATICVIGIL_API_KEY}`,
-      accounts,
-      gasPrice: 20_000_000_000
+      // gasPrice: 20_000_000_000
+      accounts
     },
     optimism: {
       chainId: 10,
@@ -159,8 +159,8 @@ const config: HardhatUserConfig = {
       url: `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
       // url: "https://rinkeby.arbitrum.io/rpc",
       // url: `https://arb-rinkeby.g.alchemy.com/v2/${process.env.ARBITRUM_API_KEY}`,
-      accounts,
-      gasPrice: 20_000_000_000
+      // gasPrice: 20_000_000_000
+      accounts
     }
   },
   gasReporter: {

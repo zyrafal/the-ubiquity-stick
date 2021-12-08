@@ -83,8 +83,8 @@ describe("TheUbiquityStick", function () {
 
     expect(await theUbiquityStick.supportsInterface(ERC721)).to.be.true;
     expect(await theUbiquityStick.supportsInterface(ERC721Metadata)).to.be.true;
+    expect(await theUbiquityStick.supportsInterface(ERC721Enumerable)).to.be.true;
     expect(await theUbiquityStick.supportsInterface(ERC721TokenReceiver)).to.be.false;
-    expect(await theUbiquityStick.supportsInterface(ERC721Enumerable)).to.be.false;
   });
 
   it("Check mint", async function () {
