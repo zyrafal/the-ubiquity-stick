@@ -2,9 +2,23 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
+// With this "The UbiquiStick" NFT contract you can :
+// - get all ERC721 functionnality https://eips.ethereum.org/EIPS/eip-721
+//   - including check that someone as a NFT of the collection with « balanceOf »
+//   - including check who is TokenID owner with « ownerOf »
+//   - including optional ERC721Metadata
+//     but without metadata JSON schema
+//     with 3 types of NFTs : standard, gold and invisible, each one having same metadata
+//     with 3 different tokenURIs
+//   - including optional ERC721Enumerable
+// - get you NFT listed on OpenSea (on mainnet or matic only)
+// - allow NFT owner to burn it’s own NFT
+// - allow one owner (deployer at start) to change tokenURIs (setTokenURI), and change minter (setMinter) and transfer it's owner role to someone else
+// - allow one minter to mint NFT (safeMint)
 
 contract TheUbiquityStick is ERC721, ERC721Burnable, ERC721Enumerable, Ownable {
   uint256 public tokenIdNext = 1;
@@ -37,8 +51,14 @@ contract TheUbiquityStick is ERC721, ERC721Burnable, ERC721Enumerable, Ownable {
     return gold[tokenId] ? _goldTokenURI : (tokenId == INVISIBLE_TOKEN_ID ? _invisibleTokenURI : _tokenURI);
   }
 
-  function random() private view returns (uint256) {
-    return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
+  function setTokenURI(uint256 ntype, string memory tokenURI_) public onlyMinter {
+    if (ntype == STANDARD_TYPE) {
+      _tokenURI = tokenURI_;
+    } else if (ntype == GOLD_TYPE) {
+      _goldTokenURI = tokenURI_;
+    } else if (ntype == INVISIBLE_TYPE) {
+      _invisibleTokenURI = tokenURI_;
+    }
   }
 
   function setMinter(address minter_) public onlyOwner {
@@ -56,14 +76,8 @@ contract TheUbiquityStick is ERC721, ERC721Burnable, ERC721Enumerable, Ownable {
     _safeMint(to, tokenId);
   }
 
-  function setTokenURI(string memory tokenURI_, uint256 ntype) public onlyMinter {
-    if (ntype == STANDARD_TYPE) {
-      _tokenURI = tokenURI_;
-    } else if (ntype == GOLD_TYPE) {
-      _goldTokenURI = tokenURI_;
-    } else if (ntype == INVISIBLE_TYPE) {
-      _invisibleTokenURI = tokenURI_;
-    }
+  function random() private view returns (uint256) {
+    return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
   }
 
   function _beforeTokenTransfer(

@@ -1,5 +1,5 @@
 {
-  "standard.json": "https://ipfs.io/ipfs/bafybeihsfqkugritgl34gbyhsaqydqvwhhss4cemxrw4nrzplouauodydm",
-  "gold.json": "https://ipfs.io/ipfs/bafybeibj342ntp6xrdicfmap3el7ch3aop64qmfj7ge3kd6ae7pftouieu",
-  "invisible.json": "https://ipfs.io/ipfs/bafybeihelaymqogou5ze2536jab3mvb46xfhjtmfniifqn7ddyilaon5iu"
+  "standardJson": "https://ipfs.io/ipfs/bafybeigb2l3wacf7z5wxgycfipsv7qoeg5thcozix6a3hv6wgggee4mlxe",
+  "goldJson": "https://ipfs.io/ipfs/bafybeib3niulmm2pad25wvopor4r2tbqcsgnubsafstpxgzq2vdit2tob4",
+  "invisibleJson": "https://ipfs.io/ipfs/bafybeig4fcwscorcb2zb54bttkfr6b7fgplod4ros2fkxxfhzg6hpf7d7y"
 }
