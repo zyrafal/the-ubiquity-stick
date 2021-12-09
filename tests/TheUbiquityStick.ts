@@ -123,7 +123,7 @@ describe("TheUbiquityStick", function () {
     await expect(theUbiquityStick.connect(tester1Signer).setTokenURI(1, tokenURIs.standardJson)).to.be.reverted;
   });
 
-  it("Check randomness 1 out of 64, about 1.5%", async function () {
+  it("Mint lot of NFTs", async function () {
     let nn = network.name === "hardhat" ? 1024 : network.name === "rinkeby" ? 16 : network.name === "matic" ? 1 : 0;
 
     if (nn) {
@@ -136,21 +136,27 @@ describe("TheUbiquityStick", function () {
       const tokenIdMax = Number(await theUbiquityStick.tokenIdNext());
       expect(tokenIdMax).to.be.equal(tokenIdMin + nn);
       console.log("nTotal", nn);
-
-      let nGold = 0;
-      let goldies = "";
-      for (let i = tokenIdMin; i < tokenIdMax; i++)
-        if (await theUbiquityStick.gold(i)) {
-          goldies += ` ${i}`;
-          nGold++;
-        }
-      console.log("nGold", nGold, goldies);
-
-      const ratio = (100 * nGold) / nn;
-      console.log("ratio ", ratio, "%");
-
-      // if nn big enough expect ratio around theoritical 1,5
-      if (nn > 300) expect(ratio).to.be.gt(1).and.to.be.lt(3);
     }
+  });
+
+  it("Check gold pourcentage about 1.5%", async function () {
+    let nGold = 0;
+    let goldies = "";
+
+    const tokenIdMax = Number(await theUbiquityStick.tokenIdNext());
+    console.log("tokenIdMax", tokenIdMax);
+
+    for (let i = 0; i < tokenIdMax; i++)
+      if (await theUbiquityStick.gold(i)) {
+        goldies += ` ${i}`;
+        nGold++;
+      }
+    console.log("nGold", nGold, goldies);
+
+    const ratio = (100 * nGold) / tokenIdMax;
+    console.log("ratio ", ratio, "%");
+
+    // if nn big enough expect ratio around theoritical 1,5
+    if (tokenIdMax > 300) expect(ratio).to.be.gt(1).and.to.be.lt(3);
   });
 });
