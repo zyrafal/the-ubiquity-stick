@@ -76,6 +76,12 @@ contract TheUbiquityStick is ERC721, ERC721Burnable, ERC721Enumerable, Ownable {
     _safeMint(to, tokenId);
   }
 
+  function batchSafeMint(address to, uint256 count) public onlyMinter {
+    for (uint256 i = 0; i < count; i++) {
+      safeMint(to);
+    }
+  }
+
   function random() private view returns (uint256) {
     return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
   }

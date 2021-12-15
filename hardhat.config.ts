@@ -40,7 +40,8 @@ const config: HardhatUserConfig = {
     minter: { default: 0, mainnet: ubq },
     tester1: { default: 1 },
     tester2: { default: 2 },
-    random: { default: 3 }
+    random: { default: 3 },
+    treasury: ubq
   },
   solidity: {
     compilers: [
@@ -90,7 +91,7 @@ const config: HardhatUserConfig = {
       chainId: 4,
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
       // url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      // gasPrice: 20_000_000_000
+      // gasPrice: 20_000_000_000,
       accounts
     },
     goerli: {
