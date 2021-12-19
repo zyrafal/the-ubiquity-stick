@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -10,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/ITheUbiquityStick.sol";
 
 contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
   struct Purchase {
@@ -23,16 +21,19 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
 
   // Stores the allowed minting count and token price for each whitelisted address
   mapping(address => Purchase) private _allowances;
-  // Stores the list of purchases along with the pricing
-  mapping(address => Purchase[]) private _purchases;
 
   // Stores the addresse of the treasury
   address public fundsAddress;
 
   uint256 public constant MAXIMUM_SUPPLY = 1024;
+  uint256 public constant MAXIMUM_PER_TX = 10;
   address private constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
-  event DustSent(address _to, address token, uint256 amount);
+  event Mint(address from, uint256 count, uint256 price);
+
+  event Payback(address to, uint256 unspent);
+
+  event DustSent(address to, address token, uint256 amount);
 
   constructor() {}
 
@@ -85,33 +86,32 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
   // Handles token purchases
   receive() external payable nonReentrant {
     // Check if tokens are still available for sale
+    require(tokenContract.totalSupply() < MAXIMUM_SUPPLY, "Sold Out");
     uint256 remainingTokenCount = MAXIMUM_SUPPLY - tokenContract.totalSupply();
-    require(remainingTokenCount > 0, "Sold Out");
 
-    // Check if sufficient funds are sent, and that the address is whitelisted (has valid allowance)
-    // with enough funds to purchase at least 1 token
-    uint256 accountLimit;
-    uint256 tokenPrice;
-    (accountLimit, tokenPrice) = allowance(msg.sender);
-    require(accountLimit > 0, "Not Whitelisted For The Sale Or Insufficient Allowance");
-    require(msg.value >= tokenPrice, "Insufficient Funds");
+    // Check if sufficient funds are sent, and that the address is whitelisted
+    // and had enough allowance with enough funds
+    uint256 count;
+    uint256 price;
+    (count, price) = allowance(msg.sender);
+    require(count > 0, "Not Whitelisted For The Sale Or Insufficient Allowance");
 
-    // Calculate the actual amount of tokens to be minted, which must be within the set limits
-    uint256 specifiedAmount = (tokenPrice == 0 ? accountLimit : msg.value.div(tokenPrice));
-    uint256 actualAmount = (specifiedAmount > accountLimit ? accountLimit : specifiedAmount);
-    actualAmount = (remainingTokenCount < actualAmount ? remainingTokenCount : actualAmount);
-    _allowances[msg.sender].count -= actualAmount;
-    tokenContract.batchSafeMint(msg.sender, actualAmount);
+    if (remainingTokenCount < count) count = remainingTokenCount;
+    if (msg.value < count * price) count = msg.value / price;
+    if (MAXIMUM_PER_TX < count) count = MAXIMUM_PER_TX;
+    require(count > 0, "Not enough Funds");
 
-    uint256 totalSpent = actualAmount.mul(tokenPrice);
-    if (totalSpent > 0) {
-      _purchases[msg.sender].push(Purchase(actualAmount, tokenPrice));
-    }
+    _allowances[msg.sender].count -= count;
+
+    uint256 paid = count * price;
+    tokenContract.batchSafeMint(msg.sender, count);
+    emit Mint(msg.sender, count, paid);
 
     // Calculate any excess/unspent funds and transfer it back to the buyer
-    uint256 unspent = msg.value.sub(totalSpent);
-    if (unspent > 0) {
+    if (msg.value > paid) {
+      uint256 unspent = msg.value - paid;
       payable(msg.sender).transfer(unspent);
+      emit Payback(msg.sender, unspent);
     }
   }
 
@@ -121,6 +121,8 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
     uint256 _amount
   ) public nonReentrant onlyFinance {
     require(_to != address(0), "Can't send to zero address");
+    require(_amount > 0, "Can't send zero token");
+
     if (_token == ETH_ADDRESS) {
       payable(_to).transfer(_amount);
     } else {
