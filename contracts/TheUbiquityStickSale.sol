@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./interfaces/ITheUbiquiStickSale.sol";
+import "./interfaces/ITheUbiquityStick.sol";
 
-contract TheUbiquiStickSale is Ownable, ReentrancyGuard {
+contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -18,8 +18,8 @@ contract TheUbiquiStickSale is Ownable, ReentrancyGuard {
     uint256 price;
   }
 
-  // TheUbiquiStick token contract interface
-  ITheUbiquiStick public tokenContract;
+  // TheUbiquityStick token contract interface
+  ITheUbiquityStick public tokenContract;
 
   // Stores the allowed minting count and token price for each whitelisted address
   mapping(address => Purchase) private _allowances;
@@ -44,7 +44,7 @@ contract TheUbiquiStickSale is Ownable, ReentrancyGuard {
 
   function setTokenContract(address _newTokenContract) external onlyOwner {
     require(_newTokenContract != address(0), "Invalid Address");
-    tokenContract = ITheUbiquiStick(_newTokenContract);
+    tokenContract = ITheUbiquityStick(_newTokenContract);
   }
 
   function setFundsAddress(address _address) external onlyOwner {
@@ -115,11 +115,11 @@ contract TheUbiquiStickSale is Ownable, ReentrancyGuard {
     }
   }
 
-  function _sendDust(
+  function sendDust(
     address _to,
     address _token,
     uint256 _amount
-  ) internal nonReentrant onlyFinance {
+  ) public nonReentrant onlyFinance {
     require(_to != address(0), "Can't send to zero address");
     if (_token == ETH_ADDRESS) {
       payable(_to).transfer(_amount);

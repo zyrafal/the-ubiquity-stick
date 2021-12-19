@@ -1,27 +1,35 @@
 import { expect } from "chai";
 import { ethers, deployments, getNamedAccounts, network, getChainId } from "hardhat";
-import { Signer } from "ethers";
+import { Signer, BigNumber } from "ethers";
 import { TheUbiquityStick } from "../artifacts/types/TheUbiquityStick";
-import tokenURIs from "../metadata/json.json";
+import { TheUbiquityStickSale } from "../artifacts/types/TheUbiquityStickSale";
 
-describe("TheUbiquityStick", function () {
+const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+const MAXIMUM_SUPPLY = 1024;
+const one = BigNumber.from(10).pow(18);
+const count = 42;
+
+describe("TheUbiquityStickSale", function () {
 
   let minterSigner: Signer;
   let tester1Signer: Signer;
   let theUbiquityStick: TheUbiquityStick;
+  let theUbiquityStickSale: TheUbiquityStickSale;
   let tokenIdStart: number;
 
   let minter: string;
   let tester1: string;
   let tester2: string;
   let random: string;
+  let treasury: string;
+
 
   before(async () => {
     const chainId = Number(await getChainId());
     console.log("network", chainId, network.name, network.live);
 
     const namedAccounts = await getNamedAccounts();
-    ({ minter, tester1, tester2, random } = namedAccounts);
+    ({ minter, tester1, tester2, random, treasury } = namedAccounts);
     console.log("NamedAccounts", namedAccounts);
 
     if (network.name === "hardhat") {
@@ -39,124 +47,105 @@ describe("TheUbiquityStick", function () {
     tester1Signer = ethers.provider.getSigner(tester1);
 
     // DEPLOY NFTPass contract if not already
-    if (!(await ethers.getContractOrNull("TheUbiquityStick"))) {
-      console.log("Deploy TheUbiquityStick...");
-      await deployments.fixture(["TheUbiquityStick"]);
+    if (!(await ethers.getContractOrNull("TheUbiquityStickSale"))) {
+      console.log("Deploy TheUbiquityStickSale...");
+      await deployments.fixture(["TheUbiquityStickSale"]);
     }
 
-    // GET NFTPass contract
+
+    theUbiquityStickSale = await ethers.getContract("TheUbiquityStickSale", minterSigner);
+    console.log("contract", theUbiquityStickSale.address);
+
     theUbiquityStick = await ethers.getContract("TheUbiquityStick", minterSigner);
     console.log("contract", theUbiquityStick.address);
 
-    tokenIdStart = Number(await theUbiquityStick.tokenIdNext());
-    console.log("tokenIdStart", tokenIdStart);
   });
 
   it("Check contract ok", async function () {
-    expect(theUbiquityStick.address).to.be.properAddress;
-    expect(await theUbiquityStick.owner()).to.be.properAddress;
+    expect(theUbiquityStickSale.address).to.be.properAddress;
+    expect(await theUbiquityStickSale.owner()).to.be.properAddress;
   });
 
-  it("Check with ERC165 that theUbiquityStick is ERC721, ERC721Metadata, ERC721Enumerable compatible and not ERC721TokenReceiver", async function () {
-    const ERC721 = "0x80ac58cd";
-    const ERC721TokenReceiver = "0x150b7a02";
-    const ERC721Metadata = "0x5b5e139f";
-    const ERC721Enumerable = "0x780e9d63";
-
-    expect(await theUbiquityStick.supportsInterface(ERC721)).to.be.true;
-    expect(await theUbiquityStick.supportsInterface(ERC721Metadata)).to.be.true;
-    expect(await theUbiquityStick.supportsInterface(ERC721Enumerable)).to.be.true;
-    expect(await theUbiquityStick.supportsInterface(ERC721TokenReceiver)).to.be.false;
+  describe("TheUbiquityStickSale view functions", function () {
+    it("Check MAXIMUM_SUPPLY", async function () {
+      expect(await theUbiquityStickSale.MAXIMUM_SUPPLY()).to.be.equal(MAXIMUM_SUPPLY);
+    });
+    it("Check tokenContract", async function () {
+      expect(await theUbiquityStickSale.tokenContract()).to.be.equal(theUbiquityStick.address);
+    });
+    it("Check fundsAddress", async function () {
+      expect(await theUbiquityStickSale.fundsAddress()).to.be.equal(treasury);
+    });
+    it("Check allowance", async function () {
+      const allow = await theUbiquityStickSale.allowance(random);
+      expect(allow.count).to.be.equal(0);
+      expect(allow.price).to.be.equal(0);
+    });
+    it("Check owner", async function () {
+      expect(await theUbiquityStickSale.owner()).to.be.equal(minter);
+    });
   });
 
-  it("Check mint", async function () {
-    // 1 NFT for tester 2 and 2 NFTs for tester1 , second one will be burn
-    await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait()).to.be.not.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester2)).wait()).to.be.not.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait()).to.be.not.reverted;
-    await expect(theUbiquityStick.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
+  describe("TheUbiquityStickSale set functions", function () {
+    it("Check setTokenContract", async function () {
+      await (await theUbiquityStickSale.setTokenContract(random)).wait();
+      expect(await theUbiquityStickSale.tokenContract()).to.be.equal(random);
+    });
+    it("Check setFundsAddress", async function () {
+      await (await theUbiquityStickSale.setFundsAddress(random)).wait();
+      expect(await theUbiquityStickSale.fundsAddress()).to.be.equal(random);
+    });
+    it("Check setAllowance", async function () {
+      await (await theUbiquityStickSale.setAllowance(random, count, one)).wait();
+      const allow = await theUbiquityStickSale.allowance(random);
+      expect(allow.count).to.be.equal(count);
+      expect(allow.price).to.be.equal(one);
+    });
+    it("Check batchSetAllowances", async function () {
+      await (await theUbiquityStickSale.batchSetAllowances(
+        [tester1, tester2],
+        [count, count * 2,],
+        [one, one.mul(3)])
+      ).wait();
+      const allow1 = await theUbiquityStickSale.allowance(tester1);
+      expect(allow1.count).to.be.equal(count);
+      expect(allow1.price).to.be.equal(one);
+      const allow2 = await theUbiquityStickSale.allowance(tester2);
+      expect(allow2.count).to.be.equal(count * 2);
+      expect(allow2.price).to.be.equal(one.mul(3));
+    });
   });
 
-  it("Check setMinter", async function () {
-    await expect(theUbiquityStick.connect(tester1Signer).safeMint(tester1)).to.be.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).setMinter(tester1)).wait()).to.be.not.reverted;
-    await expect((await theUbiquityStick.connect(tester1Signer).safeMint(tester1)).wait()).to.be.not.reverted;
-    await expect(theUbiquityStick.connect(minterSigner).safeMint(tester1)).to.be.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).setMinter(minter)).wait()).to.be.not.reverted;
+
+  describe("TheUbiquityStickSale modifiers", function () {
+    it("Check onlyOwner", async function () {
+      await expect(theUbiquityStickSale.connect(tester1Signer)
+        .setTokenContract(random)).to.be.revertedWith("Ownable: caller is not the owner");
+      await expect(theUbiquityStickSale.connect(tester1Signer)
+        .setFundsAddress(random)).to.be.revertedWith("Ownable: caller is not the owner");
+      await expect(theUbiquityStickSale.connect(tester1Signer)
+        .setAllowance(random, count, one)).to.be.revertedWith("Ownable: caller is not the owner");
+      await expect(theUbiquityStickSale.connect(tester1Signer)
+        .batchSetAllowances([tester1, tester2], [count, count * 2,], [one, one.mul(3)])).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Check onlyFinance", async function () {
+      await expect(theUbiquityStickSale.connect(tester1Signer)
+        .sendDust(random, ETH_ADDRESS, one)).to.be.revertedWith("Unauthorized Access");
+    });
   });
 
-  it("Check balanceOf", async function () {
-    expect(await theUbiquityStick.balanceOf(tester1)).to.be.gte(2);
-    expect(await theUbiquityStick.balanceOf(tester2)).to.be.gte(1);
-    expect(await theUbiquityStick.balanceOf(random)).to.be.equal(0);
+  describe("TheUbiquityStickSale receive to Mint", function () {
+    it.skip("Check receive", async function () {
+      // TO DO
+    });
   });
 
-  it("Check ownerOf", async function () {
-    expect(await theUbiquityStick.ownerOf(tokenIdStart)).to.be.equal(tester1);
-    expect(await theUbiquityStick.ownerOf(tokenIdStart + 1)).to.be.equal(tester2);
-    expect(await theUbiquityStick.ownerOf(tokenIdStart + 2)).to.be.equal(tester1);
-    await expect(theUbiquityStick.ownerOf(0)).to.be.revertedWith("ERC721: owner query for nonexistent token");
-    await expect(theUbiquityStick.ownerOf(1)).to.be.not.reverted;
-    await expect(theUbiquityStick.ownerOf(999)).to.be.revertedWith("ERC721: owner query for nonexistent token");
-  });
-
-  it("Check burn", async function () {
-    await expect((await theUbiquityStick.connect(tester1Signer).burn(tokenIdStart + 2)).wait()).to.be.not.reverted;
-    await expect(theUbiquityStick.connect(tester1Signer).burn(tokenIdStart + 2)).to.be.revertedWith(
-      "ERC721: operator query for nonexistent token"
-    );
-    await expect(theUbiquityStick.connect(tester1Signer).burn(tokenIdStart + 1)).to.be.revertedWith(
-      "ERC721Burnable: caller is not owner nor approved"
-    );
-    await expect(theUbiquityStick.connect(minterSigner).burn(999)).to.be.revertedWith(
-      "ERC721: operator query for nonexistent token"
-    );
-  });
-
-  it("Check setTokenURI", async function () {
-    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI(0, tokenURIs.standardJson)).wait()).to.be.not.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI(1, tokenURIs.goldJson)).wait()).to.be.not.reverted;
-    await expect((await theUbiquityStick.connect(minterSigner).setTokenURI(2, tokenURIs.invisibleJson)).wait()).to.be.not
-      .reverted;
-    expect(await theUbiquityStick.tokenURI(tokenIdStart + 1)).to.be.oneOf([tokenURIs.standardJson, tokenURIs.goldJson, tokenURIs.invisibleJson]);
-    await expect(theUbiquityStick.connect(tester1Signer).setTokenURI(0, tokenURIs.standardJson)).to.be.reverted;
-    await expect(theUbiquityStick.connect(tester1Signer).setTokenURI(1, tokenURIs.standardJson)).to.be.reverted;
-  });
-
-  it("Mint lot of NFTs", async function () {
-    let nn = network.name === "hardhat" ? 1024 : network.name === "rinkeby" ? 16 : network.name === "matic" ? 1 : 0;
-
-    if (nn) {
-      const tokenIdMin = Number(await theUbiquityStick.tokenIdNext());
-      for (let i = tokenIdMin; i < tokenIdMin + nn; i++) {
-        await (await theUbiquityStick.connect(minterSigner).safeMint(tester1)).wait();
-      }
-      expect(await theUbiquityStick.balanceOf(tester1)).to.be.gte(nn);
-
-      const tokenIdMax = Number(await theUbiquityStick.tokenIdNext());
-      expect(tokenIdMax).to.be.equal(tokenIdMin + nn);
-      console.log("nTotal", nn);
-    }
-  });
-
-  it("Check gold pourcentage about 1.5%", async function () {
-    let nGold = 0;
-    let goldies = "";
-
-    const tokenIdMax = Number(await theUbiquityStick.tokenIdNext());
-    console.log("tokenIdMax", tokenIdMax);
-
-    for (let i = 0; i < tokenIdMax; i++)
-      if (await theUbiquityStick.gold(i)) {
-        goldies += ` ${i}`;
-        nGold++;
-      }
-    console.log("nGold", nGold, goldies);
-
-    const ratio = (100 * nGold) / tokenIdMax;
-    console.log("ratio ", ratio, "%");
-
-    // if nn big enough expect ratio around theoritical 1,5
-    if (tokenIdMax > 300) expect(ratio).to.be.gt(1).and.to.be.lt(3);
+  describe("TheUbiquityStickSale send Dust", function () {
+    it("Check sendDust", async function () {
+      await (await theUbiquityStickSale.setFundsAddress(minter)).wait();
+      await expect(theUbiquityStickSale.connect(minterSigner)
+        .sendDust(random, ETH_ADDRESS, 0)).to.be.not.reverted;
+    });
   });
 });

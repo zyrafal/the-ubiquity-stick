@@ -1,25 +1,25 @@
 import type { DeployFunction } from "hardhat-deploy/types";
 
-const deployTheUbiquiStickSale: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
+const deployTheUbiquityStickSale: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
   const { deployer } = await ethers.getNamedSigners();
   const { treasury } = await getNamedAccounts();
 
-  const deployResult = await deployments.deploy("TheUbiquiStickSale", {
+  const deployResult = await deployments.deploy("TheUbiquityStickSale", {
     from: deployer.address,
     args: [],
     log: true
   });
   if (deployResult.newlyDeployed) {
-    const theUbiquiStick = await ethers.getContract("TheUbiquityStick");
-    await theUbiquiStick.connect(deployer).setMinter(deployResult.address);
+    const theUbiquityStick = await ethers.getContract("TheUbiquityStick");
+    await theUbiquityStick.connect(deployer).setMinter(deployResult.address);
 
-    const theUbiquiStickSale = new ethers.Contract(deployResult.address, deployResult.abi, deployer);
-    await theUbiquiStickSale.connect(deployer).setFundsAddress(treasury);
-    await theUbiquiStickSale.connect(deployer).setTokenContract(theUbiquiStick?.address);
+    const theUbiquityStickSale = new ethers.Contract(deployResult.address, deployResult.abi, deployer);
+    await theUbiquityStickSale.connect(deployer).setFundsAddress(treasury);
+    await theUbiquityStickSale.connect(deployer).setTokenContract(theUbiquityStick?.address);
   }
 
 };
-export default deployTheUbiquiStickSale;
+export default deployTheUbiquityStickSale;
 
-deployTheUbiquiStickSale.tags = ["TheUbiquiStickSale"];
-deployTheUbiquiStickSale.dependencies = ["TheUbiquityStick"];
+deployTheUbiquityStickSale.tags = ["TheUbiquityStickSale"];
+deployTheUbiquityStickSale.dependencies = ["TheUbiquityStick"];
