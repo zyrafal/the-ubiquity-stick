@@ -4,32 +4,30 @@ import { Signer, BigNumber, utils } from "ethers";
 import { TheUbiquityStick } from "../artifacts/types/TheUbiquityStick";
 import { TheUbiquityStickSale } from "../artifacts/types/TheUbiquityStickSale";
 
+const { provider } = ethers;
+
 const one = BigNumber.from(10).pow(18);
 const gwei = BigNumber.from(10).pow(9);
 const gas = gwei.mul(100000);
 
-const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 const MAXIMUM_SUPPLY = 1024;
 const count = 34;
 const price = one.mul(3);
 
-describe.only("TheUbiquityStickSale", () => {
+describe("TheUbiquityStickSale", () => {
 
-  let minterSigner: Signer;
-  let tester1Signer: Signer;
-  let tester2Signer: Signer;
-  let randomSigner: Signer;
-  let ethwhaleSigner: Signer;
   let theUbiquityStick: TheUbiquityStick;
   let theUbiquityStickSale: TheUbiquityStickSale;
-  let tokenIdStart: number;
 
   let minter: string;
   let tester1: string;
   let tester2: string;
   let random: string;
   let treasury: string;
-  let ethwhale: string;
+
+  let minterSigner: Signer;
+  let tester1Signer: Signer;
+  let randomSigner: Signer;
 
   const mint = async (signer: Signer, count: number, price: BigNumber): Promise<BigNumber> => {
     const signerAddress = await signer.getAddress();
@@ -52,13 +50,11 @@ describe.only("TheUbiquityStickSale", () => {
     console.log("network", chainId, network.name, network.live);
 
     const namedAccounts = await getNamedAccounts();
-    ({ minter, tester1, tester2, random, treasury, ethwhale } = namedAccounts);
+    ({ minter, tester1, tester2, random, treasury } = namedAccounts);
 
-    minterSigner = ethers.provider.getSigner(minter);
-    tester1Signer = ethers.provider.getSigner(tester1);
-    tester2Signer = ethers.provider.getSigner(tester1);
-    randomSigner = ethers.provider.getSigner(random);
-    ethwhaleSigner = ethers.provider.getSigner(ethwhale);
+    minterSigner = provider.getSigner(minter);
+    tester1Signer = provider.getSigner(tester1);
+    randomSigner = provider.getSigner(random);
 
     if (!(await ethers.getContractOrNull("TheUbiquityStickSale"))) {
       console.log("Deploy TheUbiquityStickSale...");
@@ -135,30 +131,22 @@ describe.only("TheUbiquityStickSale", () => {
         .setAllowance(random, count, one)).to.be.revertedWith("Ownable: caller is not the owner");
       await expect(theUbiquityStickSale.connect(tester1Signer)
         .batchSetAllowances([tester1, tester2], [count, count * 2,], [one, one.mul(3)])).to.be.revertedWith("Ownable: caller is not the owner");
-    });
-
-    it("Check onlyFinance", async () => {
       await expect(theUbiquityStickSale.connect(tester1Signer)
-        .sendDust(random, ETH_ADDRESS, one)).to.be.revertedWith("Unauthorized Access");
-    });
-  });
-
-  describe("TheUbiquityStickSale send Dust", () => {
-    it("Check sendDust", async () => {
-      await (await theUbiquityStickSale.setFundsAddress(minter)).wait();
-      await expect(theUbiquityStickSale.connect(minterSigner)
-        .sendDust(random, ETH_ADDRESS, 0)).to.be.revertedWith("Can't send zero token");
+        .withdraw()).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 
   describe("TheUbiquityStickSale Minting", () => {
     before(async () => {
       await (await theUbiquityStickSale.setTokenContract(theUbiquityStick.address)).wait();
+      await (await theUbiquityStickSale.setFundsAddress(treasury)).wait();
     });
 
-    beforeEach(async () => {
-      console.log(`NFTs minted ${await theUbiquityStick.totalSupply()}`);
-      console.log(`Balance ${utils.formatEther(await (await randomSigner.getBalance()))}`);
+    afterEach(async () => {
+      console.log(`Minted ${await theUbiquityStick.totalSupply()}`);
+      console.log(`Balance Minter    ${utils.formatEther(await provider.getBalance(random))}`);
+      console.log(`Balance Stick     ${utils.formatEther(await provider.getBalance(theUbiquityStickSale.address))}`);
+      console.log(`Balance Treasury  ${utils.formatEther(await provider.getBalance(treasury))}`);
     });
 
     it("Check Mint 1", async () => {
@@ -166,6 +154,26 @@ describe.only("TheUbiquityStickSale", () => {
       await (await theUbiquityStickSale.setAllowance(random, 1, one)).wait();
 
       await (await randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: one.add(gas) })).wait();
+
+      const totalSupplyAfter = await theUbiquityStick.totalSupply();
+      expect(totalSupplyAfter.sub(totalSupplyBefore)).to.be.eq(1);
+    });
+
+    it("Check Mint 1 for free", async () => {
+      const totalSupplyBefore = await theUbiquityStick.totalSupply();
+      await (await theUbiquityStickSale.setAllowance(random, 1, 0)).wait();
+
+      await (await randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: one.add(gas) })).wait();
+
+      const totalSupplyAfter = await theUbiquityStick.totalSupply();
+      expect(totalSupplyAfter.sub(totalSupplyBefore)).to.be.eq(1);
+    });
+
+    it("Check Mint 1 at double price", async () => {
+      const totalSupplyBefore = await theUbiquityStick.totalSupply();
+      await (await theUbiquityStickSale.setAllowance(random, 1, one.mul(2))).wait();
+
+      await (await randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: one.mul(2).add(gas) })).wait();
 
       const totalSupplyAfter = await theUbiquityStick.totalSupply();
       expect(totalSupplyAfter.sub(totalSupplyBefore)).to.be.eq(1);
@@ -204,7 +212,7 @@ describe.only("TheUbiquityStickSale", () => {
     });
 
     it("Check Mint emit Payback event", async () => {
-      const balanceBefore = await randomSigner.getBalance();
+      const balanceBefore = await provider.getBalance(random);
       const totalSupplyBefore = await theUbiquityStick.totalSupply();
       await (await theUbiquityStickSale.setAllowance(random, 3, one)).wait();
 
@@ -214,22 +222,30 @@ describe.only("TheUbiquityStickSale", () => {
       const totalSupplyAfter = await theUbiquityStick.totalSupply();
       expect(totalSupplyAfter.sub(totalSupplyBefore)).to.be.eq(3);
 
-      const balanceAfter = await randomSigner.getBalance();
+      const balanceAfter = await provider.getBalance(random);
       expect(balanceBefore.sub(balanceAfter)).to.be.gt(one.mul(3)).and.lt(one.mul(301).div(100));
     });
 
+    it("Check intermediate withdraw", async () => {
+      await expect(theUbiquityStickSale.withdraw()).to.be.not.reverted;
+    });
+
     it("Check Mint not possible when Sold out", async () => {
-      await (await theUbiquityStickSale.setAllowance(random, MAXIMUM_SUPPLY * 2, 0)).wait();
+      await (await theUbiquityStickSale.setAllowance(random, MAXIMUM_SUPPLY * 2, one)).wait();
       let i: number;
       for (i = 0; i < 101; i++) {
         process.stdout.write(`${i} `);
-        await randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: gas });
+        await randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: one.mul(12).add(gas) });
       }
       console.log(i);
       await expect(randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: gas }))
         .to.be.revertedWith("Sold Out");
+      expect(await theUbiquityStick.totalSupply()).to.be.equal(MAXIMUM_SUPPLY);
     });
 
+    it("Check final withdraw", async () => {
+      await expect(theUbiquityStickSale.withdraw()).to.be.not.reverted;
+    });
   });
 
 });

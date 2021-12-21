@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
+// FORK from Land DAO -> https://github.com/Land-DAO/nft-contracts/blob/main/contracts/LandSale.sol
+
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -22,7 +24,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
   // Stores the allowed minting count and token price for each whitelisted address
   mapping(address => Purchase) private _allowances;
 
-  // Stores the addresse of the treasury
+  // Stores the address of the treasury
   address public fundsAddress;
 
   uint256 public constant MAXIMUM_SUPPLY = 1024;
@@ -33,15 +35,9 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
 
   event Payback(address to, uint256 unspent);
 
-  event DustSent(address to, address token, uint256 amount);
+  event Withdraw(address to, address token, uint256 amount);
 
   constructor() {}
-
-  // Add this modifier to all functions which are only accessible by the finance related addresses
-  modifier onlyFinance() {
-    require(msg.sender == fundsAddress, "Unauthorized Access");
-    _;
-  }
 
   function setTokenContract(address _newTokenContract) external onlyOwner {
     require(_newTokenContract != address(0), "Invalid Address");
@@ -115,19 +111,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
     }
   }
 
-  function sendDust(
-    address _to,
-    address _token,
-    uint256 _amount
-  ) public nonReentrant onlyFinance {
-    require(_to != address(0), "Can't send to zero address");
-    require(_amount > 0, "Can't send zero token");
-
-    if (_token == ETH_ADDRESS) {
-      payable(_to).transfer(_amount);
-    } else {
-      IERC20(_token).safeTransfer(_to, _amount);
-    }
-    emit DustSent(_to, _token, _amount);
+  function withdraw() public nonReentrant onlyOwner {
+    payable(fundsAddress).transfer(address(this).balance);
   }
 }

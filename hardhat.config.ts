@@ -28,7 +28,7 @@ const accounts = [
 ];
 const accountsHardhat = accounts.map((account) => ({
   privateKey: account,
-  balance: "100000000000000000000"
+  balance: "2000000000000000000000"
 }));
 
 const ubq = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
