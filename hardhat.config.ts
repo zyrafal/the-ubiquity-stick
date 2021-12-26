@@ -20,12 +20,13 @@ if (!process.env.INFURA_API_KEY) {
 }
 
 const accounts = [
-  process.env.UBQ || "",
-  process.env.PRIVATE_KEY_TEST_2 || "",
-  process.env.PRIVATE_KEY_TEST_3 || "",
-  process.env.PRIVATE_KEY_TEST_4 || "",
-  process.env.PRIVATE_KEY_TEST_5 || ""
+  process.env.UBQ as string,
+  "bf95326c5ad0b711aecae41882410a0abe08b1448f8548df860cb88668722b85",
+  "002a6f16cb7a03da5491eb69d228d3812bd5c948a1f974bc72aeeb7be4a57ecb",
+  "6fc7265d318d5f860c15a45899c09de823295cefe16ed71cf45c65b8fc885312",
+  "fa9de917b2e781327310255c8834774d2d97b4fb81986ae54d9f30c52a54eca0"
 ];
+
 const accountsHardhat = accounts.map((account) => ({
   privateKey: account,
   balance: "2000000000000000000000"

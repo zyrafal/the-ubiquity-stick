@@ -2,7 +2,7 @@ import type { DeployFunction } from "hardhat-deploy/types";
 import type { TheUbiquityStick } from "../artifacts/types/TheUbiquityStick";
 import tokenURIs from "../metadata/json.json";
 
-const deployTheUbiquityStick: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
+const deployUbiquiStickNFT: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
   const { deploy } = deployments;
   const deployer = await ethers.getNamedSigner("deployer");
   const ten = ethers.BigNumber.from("10");
@@ -26,6 +26,6 @@ const deployTheUbiquityStick: DeployFunction = async function ({ ethers, deploym
   }
 
 };
-export default deployTheUbiquityStick;
+export default deployUbiquiStickNFT;
 
-deployTheUbiquityStick.tags = ["TheUbiquityStick"];
+deployUbiquiStickNFT.tags = ["UbiquiStickNFT"];
