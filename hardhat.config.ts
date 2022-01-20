@@ -1,3 +1,9 @@
+import type {
+  HardhatUserConfig,
+  HardhatNetworkAccountUserConfig,
+  HardhatNetworkHDAccountsUserConfig
+} from "hardhat/types";
+
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -7,28 +13,22 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 import "@typechain/hardhat";
-import type { HardhatUserConfig } from "hardhat/types";
 import "tsconfig-paths/register";
 import "./tasks/index";
 import dotenv from "dotenv";
+import { Wallet } from "ethers";
 
-if (!process.env.INFURA_API_KEY) {
+if (!process.env.ALCHEMY_API_KEY) {
   dotenv.config();
-  if (!process.env.INFURA_API_KEY) {
-    throw new Error("ENV Variable INFURA_API_KEY not set!");
+  if (!process.env.ALCHEMY_API_KEY) {
+    throw new Error("ENV Variable ALCHEMY_API_KEY not set!");
   }
 }
 
-const accounts = [
-  process.env.UBQ as string,
-  "bf95326c5ad0b711aecae41882410a0abe08b1448f8548df860cb88668722b85",
-  "002a6f16cb7a03da5491eb69d228d3812bd5c948a1f974bc72aeeb7be4a57ecb",
-  "6fc7265d318d5f860c15a45899c09de823295cefe16ed71cf45c65b8fc885312",
-  "fa9de917b2e781327310255c8834774d2d97b4fb81986ae54d9f30c52a54eca0"
-];
-
-const accountsHardhat = accounts.map((account) => ({
-  privateKey: account,
+const accounts = [process.env.DEPLOYER_PRIVATE_KEY || ""];
+for (let i = 1; i <= 5; i++) accounts.push(Wallet.createRandom().privateKey);
+const accountsHardhat: HardhatNetworkAccountUserConfig[] = accounts.map((account) => ({
+  privateKey: account || "",
   balance: "2000000000000000000000"
 }));
 
@@ -37,12 +37,12 @@ const ubq = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   namedAccounts: {
-    deployer: { default: 0, mainnet: ubq },
-    minter: { default: 0, mainnet: ubq },
-    tester1: { default: 1 },
-    tester2: { default: 2 },
-    random: { default: 3 },
-    treasury: ubq
+    deployer: { default: 1, mainnet: 0 },
+    minter: { default: 1, mainnet: 0 },
+    tester1: { default: 2 },
+    tester2: { default: 3 },
+    random: { default: 4 },
+    treasury: { default: 5, mainnet: 0 }
   },
   solidity: {
     compilers: [
@@ -62,13 +62,8 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
+      loggingEnabled: false,
       chainId: 1,
-      // loggingEnabled: true,
-      // forking: {
-      //   url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      //   // url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      //   blockNumber: 13_000_000
-      // },
       accounts: accountsHardhat,
       initialBaseFeePerGas: 0
     },
@@ -78,90 +73,13 @@ const config: HardhatUserConfig = {
     },
     mainnet: {
       chainId: 1,
-      // url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts
-    },
-    ropsten: {
-      chainId: 3,
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts
     },
     rinkeby: {
       loggingEnabled: true,
       chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      // url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      // gasPrice: 20_000_000_000,
-      accounts
-    },
-    goerli: {
-      chainId: 5,
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts
-    },
-    fantom: {
-      chainId: 250,
-      url: "https://rpcapi.fantom.network",
-      accounts
-    },
-    kovan: {
-      chainId: 42,
-      url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts
-    },
-    bsc: {
-      chainId: 56,
-      url: "https://bsc-dataseed1.binance.org",
-      accounts
-    },
-    matic: {
-      chainId: 137,
-      url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      // url: `https://rpc-mainnet.maticvigil.com/v1/${process.env.MATICVIGIL_API_KEY}`,
-      // gasPrice: 50_000_000_000
-      accounts
-    },
-    avalanche: {
-      chainId: 43114,
-      url: "https://api.avax.network/ext/bc/C/rpc",
-      accounts
-    },
-    fuji: {
-      chainId: 43113,
-      url: "https://api.avax-test.network/ext/bc/C/rpc",
-      accounts
-    },
-    mumbai: {
-      chainId: 80001,
-      url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      // url: `https://rpc-mumbai.maticvigil.com/v1/${process.env.MATICVIGIL_API_KEY}`,
-      // gasPrice: 20_000_000_000
-      accounts
-    },
-    optimism: {
-      chainId: 10,
-      url: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts
-    },
-    optimismkovan: {
-      chainId: 69,
-      url: `https://optimism-kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts
-    },
-    arbitrum: {
-      chainId: 42161,
-      // url: "https://arb1.arbitrum.io/rpc",
-      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      // url: `https://arb-mainnet.g.alchemy.com/v2/${process.env.ARBITRUM_API_KEY}`,
-      accounts
-    },
-    arbitrumrinkeby: {
-      chainId: 421611,
-      url: `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      // url: "https://rinkeby.arbitrum.io/rpc",
-      // url: `https://arb-rinkeby.g.alchemy.com/v2/${process.env.ARBITRUM_API_KEY}`,
-      // gasPrice: 20_000_000_000
+      url: `https://rinkeby.infura.io/v3/${process.env.ALCHEMY_API_KEY}`,
       accounts
     }
   },
@@ -170,10 +88,10 @@ const config: HardhatUserConfig = {
     currency: "USD"
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: process.env.ETHERSCAN_API_KEY || ""
   },
   typechain: {
-    outDir: "artifacts/types",
+    outDir: "types",
     target: "ethers-v5"
   },
   paths: {

@@ -1,14 +1,11 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import type { SimpleBond } from "../artifacts/types/SimpleBond";
+import type { SimpleBond } from "../types/SimpleBond";
+import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const deploySimpleBond = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, getChainId, ethers } = hre;
+  const { deployments, getNamedAccounts, network, ethers } = hre;
   const { deploy } = deployments;
-  const { BigNumber } = ethers;
-
+  const { provider, BigNumber } = ethers;
   const { deployer, treasury } = await ethers.getNamedSigners();
-  console.log("DEPLOYER", deployer.address);
-  const chainId = await getChainId();
 
   const uARDeployment = await deployments.get("UAR");
 
@@ -20,18 +17,17 @@ const deploySimpleBond = async function (hre: HardhatRuntimeEnvironment) {
     args: [uARDeployment.address, vestingBlocks, treasury.address],
     log: true
   });
+
   if (deploySimpleBond.newlyDeployed) {
     const simpleBond = new ethers.Contract(deploySimpleBond.address, deploySimpleBond.abi, deployer) as SimpleBond;
-    console.log("SimpleBond newly deployed", deploySimpleBond.address);
-    console.log("SimpleBond newly deployed owner", await simpleBond.owner());
 
-    if (chainId == "1") {
+    if (network.name === "mainnet") {
       console.log("Have to allow MINTER_ROLE to SimpleBond");
       console.log("Have to set infinite allowance to SimpleBond");
     } else {
       // Transfer ownership of uAR Token to SimpleBond contract in order to Mint it
-      const uARContract = new ethers.Contract(uARDeployment.address, uARDeployment.abi, deployer);
-      await uARContract.transferOwnership(deploySimpleBond.address);
+      const uARContract = new ethers.Contract(uARDeployment.address, uARDeployment.abi, provider);
+      await (await uARContract.connect(deployer).transferOwnership(deploySimpleBond.address)).wait();
 
       // Set allowance for SimpleBond to spend treasury money
       await uARContract.connect(treasury).increaseAllowance(deploySimpleBond.address, allowance);

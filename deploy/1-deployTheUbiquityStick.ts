@@ -1,17 +1,19 @@
 import type { DeployFunction } from "hardhat-deploy/types";
-import type { TheUbiquityStick } from "../artifacts/types/TheUbiquityStick";
+import type { TheUbiquityStick } from "../types/TheUbiquityStick";
 import tokenURIs from "../metadata/json.json";
 
-const deployUbiquiStickNFT: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
+const deployTheUbiquityStick: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
   const { deploy } = deployments;
   const deployer = await ethers.getNamedSigner("deployer");
+  console.log("deployer", deployer.address);
+
   const ten = ethers.BigNumber.from("10");
   const gwei = ten.pow(9);
 
   const deployResult = await deploy("TheUbiquityStick", {
     from: deployer.address,
     args: [],
-    log: true,
+    log: true
     // type: 2,
     // gasLimit: BigNumber.from("1000000"),
     // gasPrice: BigNumber.from("1000000000")
@@ -24,8 +26,7 @@ const deployUbiquiStickNFT: DeployFunction = async function ({ ethers, deploymen
     await theUbiquityStick.connect(deployer).setTokenURI(1, tokenURIs.goldJson);
     await theUbiquityStick.connect(deployer).setTokenURI(2, tokenURIs.invisibleJson);
   }
-
 };
-export default deployUbiquiStickNFT;
+export default deployTheUbiquityStick;
 
-deployUbiquiStickNFT.tags = ["UbiquiStickNFT"];
+deployTheUbiquityStick.tags = ["TheUbiquityStick"];

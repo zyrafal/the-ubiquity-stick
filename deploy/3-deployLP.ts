@@ -7,16 +7,15 @@ const deployLP: DeployFunction = async function (hre: HardhatRuntimeEnvironment)
 
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  console.log("deployer", deployer);
 
-  // const deployResult = await deploy("LP", {
-  //   from: deployer,
-  //   args: ["LP token", "LP"],
-  //   log: true
-  // });
-  // if (deployResult.newlyDeployed) {
-  //   console.log("New LP deployment");
-  // }
+  const deployResult = await deploy("LP", {
+    from: deployer,
+    args: ["LP token", "LP"],
+    log: true
+  });
+  if (deployResult.newlyDeployed) {
+    console.log("New LP deployment");
+  }
 };
 deployLP.tags = ["Tokens", "LP"];
 deployLP.skip = async ({ network }) => network.name === "mainnet";

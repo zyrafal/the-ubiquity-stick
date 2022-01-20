@@ -32,7 +32,7 @@ describe("SimpleBond", function () {
     // Deploy contract if not already
     if (!(await ethers.getContractOrNull("SimpleBond"))) {
       console.log("Deploying...");
-      await deployments.fixture();
+      await deployments.fixture(["SimpleBond"]);
     }
 
     simpleBond = await ethers.getContract("SimpleBond", signer);

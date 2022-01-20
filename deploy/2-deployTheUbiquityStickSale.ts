@@ -1,6 +1,6 @@
 import type { DeployFunction } from "hardhat-deploy/types";
 
-const deployUbiquiStickSale: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
+const deployTheUbiquityStickSale: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
   const { deployer } = await ethers.getNamedSigners();
   const { treasury } = await getNamedAccounts();
 
@@ -17,9 +17,8 @@ const deployUbiquiStickSale: DeployFunction = async function ({ ethers, deployme
     await theUbiquityStickSale.connect(deployer).setFundsAddress(treasury);
     await theUbiquityStickSale.connect(deployer).setTokenContract(theUbiquityStick?.address);
   }
-
 };
-export default deployUbiquiStickSale;
+export default deployTheUbiquityStickSale;
 
-deployUbiquiStickSale.tags = ["UbiquiStickSale"];
-deployUbiquiStickSale.dependencies = ["UbiquiStickNFT"];
+deployTheUbiquityStickSale.tags = ["TheUbiquityStickSale"];
+deployTheUbiquityStickSale.dependencies = ["TheUbiquityStick"];
