@@ -19,17 +19,27 @@ if (!process.env.INFURA_API_KEY) {
   }
 }
 
-const accounts = [
-  process.env.UBQ || "",
-  process.env.PRIVATE_KEY_TEST_2 || "",
-  process.env.PRIVATE_KEY_TEST_3 || "",
-  process.env.PRIVATE_KEY_TEST_4 || "",
-  process.env.PRIVATE_KEY_TEST_5 || ""
-];
-const accountsHardhat = accounts.map((account) => ({
-  privateKey: account,
-  balance: "2000000000000000000000"
-}));
+// const accounts = [
+//   process.env.PRIVATE_KEY_TEST_1 || "",
+//   process.env.PRIVATE_KEY_TEST_2 || "",
+//   process.env.PRIVATE_KEY_TEST_3 || "",
+//   process.env.PRIVATE_KEY_TEST_4 || "",
+//   process.env.PRIVATE_KEY_TEST_5 || ""
+// ];
+// const accountsHardhat = accounts.map((account) => ({
+//   privateKey: account,
+//   balance: "100000000000000000000"
+// }));
+
+const { MNEMONIC } = process.env;
+
+const accountsHardhat = {
+  // use default accounts
+  mnemonic: MNEMONIC,
+  count: 5,
+  balance: "1000000000000000000000000"
+};
+const accounts = accountsHardhat;
 
 const ubq = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 
@@ -60,20 +70,24 @@ const config: HardhatUserConfig = {
     ]
   },
   networks: {
-    hardhat: {
-      chainId: 1,
-      // loggingEnabled: true,
-      // forking: {
-      //   url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      //   // url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      //   blockNumber: 13_000_000
-      // },
-      accounts: accountsHardhat,
+    localhost: {
+      url: `http://127.0.0.1:8545`,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY || ""}`,
+        blockNumber: 13856891
+      },
+      accounts,
+      hardfork: "london",
       initialBaseFeePerGas: 0
     },
-    local: {
-      chainId: 1,
-      url: "http://127.0.0.1:8545"
+    hardhat: {
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY || ""}`,
+        blockNumber: 13856891
+      },
+      accounts,
+      hardfork: "london",
+      initialBaseFeePerGas: 0
     },
     mainnet: {
       chainId: 1,
