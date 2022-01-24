@@ -19,7 +19,9 @@ const deploySimpleBond = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   if (deploySimpleBond.newlyDeployed) {
+    const theUbiquityStick = await ethers.getContract("TheUbiquityStick");
     const simpleBond = new ethers.Contract(deploySimpleBond.address, deploySimpleBond.abi, deployer) as SimpleBond;
+    await simpleBond.setSticker(theUbiquityStick.address);
 
     if (network.name === "mainnet") {
       console.log("Have to allow MINTER_ROLE to SimpleBond");
@@ -35,7 +37,7 @@ const deploySimpleBond = async function (hre: HardhatRuntimeEnvironment) {
   }
 };
 deploySimpleBond.tags = ["SimpleBond"];
-deploySimpleBond.dependencies = ["Tokens"];
+deploySimpleBond.dependencies = ["Tokens", "TheUbiquityStick"];
 deploySimpleBond.runAtTheEnd = () => console.log("END");
 
 export default deploySimpleBond;

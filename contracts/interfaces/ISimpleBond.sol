@@ -8,6 +8,8 @@ interface ISimpleBond {
 
   event LogClaim(address addr, uint256 index, uint256 rewards);
 
+  function setSticker(address sticker) external;
+
   function setRewards(address token, uint256 tokenRewardsRatio) external;
 
   function setTreasury(address treasury) external;

@@ -2,6 +2,7 @@ import type { Signer, Contract } from "ethers";
 import type { LP } from "types/LP";
 import type { UAR } from "types/UAR";
 import type { SimpleBond } from "types/SimpleBond";
+import type { TheUbiquityStick } from "types/TheUbiquityStick";
 import type { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 
 import { expect } from "chai";
@@ -10,6 +11,7 @@ import { BigNumber, utils } from "ethers";
 
 import { mineNBlocks } from "./utils";
 
+const zeroAddress = "0x0000000000000000000000000000000000000000";
 const ten = BigNumber.from(10);
 const bigOne = ten.pow(18);
 const amountToMint = bigOne.mul(1000);
@@ -23,6 +25,7 @@ describe("SimpleBond", function () {
   let lp: LP;
   let uAR: UAR;
   let simpleBond: SimpleBond;
+  let theUbiquityStick: TheUbiquityStick;
 
   before(async () => {
     ({ deployer: signer, treasury } = await ethers.getNamedSigners());
@@ -53,6 +56,8 @@ describe("SimpleBond", function () {
 
     // SET REWARDS
     await (await simpleBond.setRewards(lp.address, rewardsRatio)).wait();
+
+    theUbiquityStick = await ethers.getContract("TheUbiquityStick");
   });
 
   afterEach(async () => {
@@ -81,13 +86,26 @@ describe("SimpleBond", function () {
   it("Should be ok", async function () {
     expect(signer.address).to.be.properAddress;
     expect(simpleBond.address).to.be.properAddress;
+    expect(theUbiquityStick.address).to.be.properAddress;
     expect(uAR.address).to.be.properAddress;
     expect(lp.address).to.be.properAddress;
   });
 
-  it("Should bond", async function () {
+  it("Should bond if no Sticker NFT set ", async function () {
+    await (await simpleBond.setSticker(zeroAddress)).wait();
     await (await simpleBond.bond(lp.address, bigOne.mul(100))).wait();
     expect(await simpleBond.bondsCount(signer.address)).to.be.equal(1);
+  });
+
+  it("Should not bond without Sticker NFT", async function () {
+    await (await simpleBond.setSticker(theUbiquityStick.address)).wait();
+    await expect(simpleBond.bond(lp.address, bigOne.mul(100))).to.be.revertedWith("Not NFT Stick owner");
+  });
+
+  it("Should bond with Sticker NFT", async function () {
+    await expect((await theUbiquityStick.connect(signer).safeMint(signer.address)).wait()).to.be.not.reverted;
+    await (await simpleBond.bond(lp.address, bigOne.mul(100))).wait();
+    expect(await simpleBond.bondsCount(signer.address)).to.be.equal(2);
   });
 
   it("Wait 2 000 blocks to 2 000+", async function () {

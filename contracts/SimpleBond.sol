@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -25,29 +26,44 @@ contract SimpleBond is ISimpleBond, Ownable, Pausable {
     uint256 block;
   }
 
-  /// Rewards token address
+  /// @notice Rewards token address
   address public immutable tokenRewards;
 
-  /// Rewards ratio for token bonded
+  /// @notice Rewards ratio for token bonded
   /// @dev rewardsRatio is per billion of token bonded
   mapping(address => uint256) public rewardsRatio;
 
-  /// Vesting period
+  /// @notice Vesting period
   /// @dev defined in number of block
   uint256 public vestingBlocks;
 
-  /// Bonds for each address
+  /// @notice Bonds for each address
   /// @dev bond index starts at 0 for each address
   mapping(address => Bond[]) public bonds;
 
-  /// Total rewards
+  /// @notice Total rewards
   uint256 public totalRewards;
 
-  /// Total rewards claimed
+  /// @notice Total rewards claimed
   uint256 public totalClaimedRewards;
 
-  /// Treasury address
+  /// @notice Treasury address
   address public treasury;
+
+  /// NFT stick address
+  address public sticker;
+
+  /// @notice onlySticker : no NFT stick address defined OR sender has at least one NFT Stick
+  modifier onlySticker() {
+    require(sticker == address(0) || IERC721(sticker).balanceOf(msg.sender) > 0, "Not NFT Stick owner");
+    _;
+  }
+
+  /// @notice Set sticker
+  /// @param sticker_ sticker boolean
+  function setSticker(address sticker_) public override onlyOwner {
+    sticker = sticker_;
+  }
 
   /// Simple Bond constructor
   /// @param tokenRewards_ Rewards token address
@@ -101,7 +117,7 @@ contract SimpleBond is ISimpleBond, Ownable, Pausable {
   /// @param token bonded token address
   /// @param amount amount of token to bond
   /// @return bondId Bond id
-  function bond(address token, uint256 amount) public override whenNotPaused returns (uint256 bondId) {
+  function bond(address token, uint256 amount) public override whenNotPaused onlySticker returns (uint256 bondId) {
     require(rewardsRatio[token] > 0, "Token not allowed");
 
     // @dev throws if not enough allowance or tokens for address
