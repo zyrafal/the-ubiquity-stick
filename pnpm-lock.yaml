@@ -33,6 +33,7 @@ specifiers:
   hardhat-deploy-ethers: ^0.3.0-beta.13
   hardhat-gas-reporter: ^1.0.7
   lodash: ^4.17.21
+  node-fetch: ^2.0.0
   prettier: ^2.5.1
   prettier-plugin-solidity: ^1.0.0-beta.19
   solhint: ^3.3.6
@@ -75,6 +76,7 @@ devDependencies:
   hardhat-deploy-ethers: 0.3.0-beta.13_ethers@5.5.3+hardhat@2.8.3
   hardhat-gas-reporter: 1.0.7_1c2254759cee1e4c0b13b199956dd4b6
   lodash: 4.17.21
+  node-fetch: 2.6.7
   prettier: 2.5.1
   prettier-plugin-solidity: 1.0.0-beta.19_prettier@2.5.1
   solhint: 3.3.6
