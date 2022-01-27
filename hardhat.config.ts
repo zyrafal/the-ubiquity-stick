@@ -15,12 +15,17 @@ import "solidity-coverage";
 import "@typechain/hardhat";
 import "tsconfig-paths/register";
 import "./tasks/index";
-import dotenv from "dotenv";
+
 import { Wallet } from "ethers";
 
-dotenv.config();
+import dotenv from "dotenv";
+import findupSync from "findup-sync";
+
 if (!process.env.ALCHEMY_API_KEY) {
-  throw new Error("ENV Variable ALCHEMY_API_KEY not set!");
+  dotenv.config({ path: findupSync(".env") || "" });
+  if (!process.env.ALCHEMY_API_KEY) {
+    throw new Error("ENV Variable ALCHEMY_API_KEY not set!");
+  }
 }
 
 const accounts = [process.env.DEPLOYER_PRIVATE_KEY || ""];
@@ -42,6 +47,34 @@ const config: HardhatUserConfig = {
     random: { default: 4 },
     treasury: { default: 5, mainnet: 0 }
   },
+
+  networks: {
+    hardhat: {
+      loggingEnabled: false,
+      accounts: accountsHardhat,
+      initialBaseFeePerGas: 0,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 14_050_000
+      }
+    },
+    local: {
+      chainId: 1,
+      url: "http://127.0.0.1:8545"
+    },
+    mainnet: {
+      chainId: 1,
+      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts
+    },
+    rinkeby: {
+      loggingEnabled: true,
+      chainId: 4,
+      url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts
+    }
+  },
+
   solidity: {
     compilers: [
       {
@@ -58,42 +91,21 @@ const config: HardhatUserConfig = {
       }
     ]
   },
-  networks: {
-    hardhat: {
-      loggingEnabled: false,
-      accounts: accountsHardhat,
-      initialBaseFeePerGas: 0,
-      forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
-      }
-    },
-    local: {
-      chainId: 1,
-      url: "http://127.0.0.1:8545"
-    },
-    mainnet: {
-      chainId: 1,
-      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts
-    },
-    rinkeby: {
-      loggingEnabled: true,
-      chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${process.env.ALCHEMY_API_KEY}`,
-      accounts
-    }
-  },
+
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD"
   },
+
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY || ""
   },
+
   typechain: {
     outDir: "types",
     target: "ethers-v5"
   },
+
   paths: {
     sources: "contracts",
     deploy: "deploy",
@@ -103,6 +115,7 @@ const config: HardhatUserConfig = {
     cache: "artifacts/cache",
     artifacts: "artifacts"
   },
+
   mocha: {
     timeout: 1_000_000,
     bail: true

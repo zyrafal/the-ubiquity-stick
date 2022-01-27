@@ -1,3 +1,4 @@
+#! ts-node
 import type { Response } from "node-fetch";
 import fetch from "node-fetch";
 

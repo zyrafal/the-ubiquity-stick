@@ -1,3 +1,4 @@
+#! hh run
 import { DeployFunction } from "hardhat-deploy/types";
 
 const deployMockUBQmanager: DeployFunction = async function ({ deployments, getNamedAccounts }) {
