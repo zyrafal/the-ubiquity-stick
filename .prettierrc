@@ -10,7 +10,8 @@
     {
       "files": "*.sol",
       "options": {
-        "singleQuote": false
+        "singleQuote": false,
+        "tabWidth": 4
       }
     }
   ]
