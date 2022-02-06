@@ -20,6 +20,7 @@ specifiers:
   '@types/node': ^16.11.21
   '@uniswap/sdk-core': ^3.0.1
   '@uniswap/v3-core': ^1.0.1
+  '@uniswap/v3-periphery': ^1.4.0
   '@uniswap/v3-sdk': ^3.8.2
   chai: ^4.3.4
   dotenv: ^10.0.0
@@ -72,6 +73,7 @@ devDependencies:
   '@types/mocha': 9.1.0
   '@types/node': 16.11.21
   '@uniswap/v3-core': 1.0.1
+  '@uniswap/v3-periphery': 1.4.0_hardhat@2.8.3
   chai: 4.3.4
   dotenv: 10.0.0
   eslint: 7.32.0
@@ -832,7 +834,6 @@ packages:
 
   /@openzeppelin/contracts/3.4.1-solc-0.7-2:
     resolution: {integrity: sha512-tAG9LWg8+M2CMu7hIsqHPaTyG4uDzjr6mhvH96LvOpLZZj6tgzTluBt+LsCf1/QaYrlis6pITvpIaIhE+iZB+Q==}
-    dev: false
 
   /@openzeppelin/contracts/4.4.2:
     resolution: {integrity: sha512-NyJV7sJgoGYqbtNUWgzzOGW4T6rR19FmX1IJgXGdapGPWsuMelGJn9h03nos0iqfforCbCB0iYIR0MtIuIFLLw==}
@@ -1223,7 +1224,6 @@ packages:
   /@uniswap/lib/4.0.1-alpha:
     resolution: {integrity: sha512-f6UIliwBbRsgVLxIaBANF6w09tYqc6Y/qXdsrbEmXHyFA7ILiKrIwRFXe1yOg8M3cksgVsO9N7yuL2DdCGQKBA==}
     engines: {node: '>=10'}
-    dev: false
 
   /@uniswap/sdk-core/3.0.1:
     resolution: {integrity: sha512-WbeDkhZ9myVR0VnHOdTrb8nHKKkqTFa5uE9RvUbG3eyDt2NWWDwhhqGHwAWJEHG405l30Fa1u3PogHDFsIOQlA==}
@@ -1240,12 +1240,10 @@ packages:
   /@uniswap/v2-core/1.0.1:
     resolution: {integrity: sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==}
     engines: {node: '>=10'}
-    dev: false
 
   /@uniswap/v3-core/1.0.0:
     resolution: {integrity: sha512-kSC4djMGKMHj7sLMYVnn61k9nu+lHjMIxgg9CDQT+s2QYLoA56GbSK9Oxr+qJXzzygbkrmuY6cwgP6cW2JXPFA==}
     engines: {node: '>=10'}
-    dev: false
 
   /@uniswap/v3-core/1.0.1:
     resolution: {integrity: sha512-7pVk4hEm00j9tc71Y9+ssYpO6ytkeI0y7WE9P6UcmNzhxPePwyAxImuhVsTqWK9YFvzgtvzJHi64pBl4jUzKMQ==}
@@ -1264,7 +1262,6 @@ packages:
       hardhat-watcher: 2.1.1_hardhat@2.8.3
     transitivePeerDependencies:
       - hardhat
-    dev: false
 
   /@uniswap/v3-sdk/3.8.2_hardhat@2.8.3:
     resolution: {integrity: sha512-JVrs1ZuWKP8JmYi5hxFliOnCFAEREwMpE7qB6rKPCo155/pIRyQ90lJfQZCJO7pP/webx5t5JFxCOytmDIp29Q==}
@@ -2247,7 +2244,6 @@ packages:
 
   /base64-sol/1.0.1:
     resolution: {integrity: sha512-ld3cCNMeXt4uJXmLZBHFGMvVpK9KsLVEhPpFRXnvSVAqABKbuNZg/+dsq3NuM+wxFLb/UrVkz7m1ciWmkMfTbg==}
-    dev: false
 
   /bcrypt-pbkdf/1.0.2:
     resolution: {integrity: sha1-pDAdOJtqQ/m2f/PKEaP2Y342Dp4=}
@@ -5274,7 +5270,6 @@ packages:
     dependencies:
       chokidar: 3.5.3
       hardhat: 2.8.3
-    dev: false
 
   /hardhat/2.8.3:
     resolution: {integrity: sha512-VxqiVTSayRoeLHly8zKnlvtWoG8sroTP4vl8GHuj7OjfAdrHu4Blk7NBJ5+Rl8cmMEp6CuZtDaDmcHJIRTwEPA==}
