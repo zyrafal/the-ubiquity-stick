@@ -2,27 +2,32 @@
 import { ethers, network, deployments } from "hardhat";
 import { BigNumber, utils } from "ethers";
 import { abi } from "@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json";
-import { IUniswapV3Pool } from "../types/IUniswapV3Pool";
-import { TwapGetter } from "../types/TwapGetter";
+import { IUniswapV3Pool } from "../../types/IUniswapV3Pool";
+import { TwapGetter } from "../../types/TwapGetter";
+
+const UAD_USDC = "0x681B4C3aF785DacACcC496B9Ff04f9c31BcE4090";
+const USDC_ETH = "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8";
 
 const init = async () => {
   console.log(network.name, "init");
   await deployments.fixture(["TwapGetter"]);
 
-  pool = new ethers.Contract(UAD_USDC, abi, ethers.provider) as IUniswapV3Pool;
+  pool = new ethers.Contract(USDC_ETH, abi, ethers.provider) as IUniswapV3Pool;
   twapGetter = (await ethers.getContract("TwapGetter")) as TwapGetter;
 };
 
-const UAD_USDC = "0x681B4C3aF785DacACcC496B9Ff04f9c31BcE4090";
 let pool: IUniswapV3Pool;
 let twapGetter: TwapGetter;
 
 const getTwap = async (duration: BigNumber) => {
-  const sqrtPriceX96 = await twapGetter.getSqrtTwapX96(UAD_USDC, duration);
+  const sqrtPriceX96 = await twapGetter.getSqrtTwapX96(USDC_ETH, duration);
   // console.log("getTwap ~ sqrtPriceX96", sqrtPriceX96.toString());
 
   const priceX96 = await twapGetter.getPriceX96FromSqrtPriceX96(sqrtPriceX96);
   console.log("getTwap ~ priceX96", priceX96.toString());
+
+  const price = sqrtPriceX96.pow(2).div(BigNumber.from(2).pow(192));
+  console.log("getTwap ~ price", utils.formatEther(price));
 };
 
 const getTickTwap = async (duration: BigNumber) => {

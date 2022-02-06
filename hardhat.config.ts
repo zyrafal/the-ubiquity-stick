@@ -1,8 +1,4 @@
-import type {
-  HardhatUserConfig,
-  HardhatNetworkAccountUserConfig,
-  HardhatNetworkHDAccountsUserConfig
-} from "hardhat/types";
+import type { HardhatUserConfig, HardhatNetworkAccountUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
