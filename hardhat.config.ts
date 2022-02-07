@@ -35,7 +35,7 @@ const ubq = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   namedAccounts: {
-    deployer: { default: 1, mainnet: 0 },
+    deployer: { default: 0, mainnet: 0 },
     minter: { default: 1, mainnet: 0 },
     tester1: { default: 2 },
     tester2: { default: 3 },
@@ -61,9 +61,11 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       loggingEnabled: false,
-      chainId: 1,
       accounts: accountsHardhat,
-      initialBaseFeePerGas: 0
+      initialBaseFeePerGas: 0,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
+      }
     },
     local: {
       chainId: 1,
