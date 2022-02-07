@@ -18,11 +18,9 @@ import "./tasks/index";
 import dotenv from "dotenv";
 import { Wallet } from "ethers";
 
+dotenv.config();
 if (!process.env.ALCHEMY_API_KEY) {
-  dotenv.config();
-  if (!process.env.ALCHEMY_API_KEY) {
-    throw new Error("ENV Variable ALCHEMY_API_KEY not set!");
-  }
+  throw new Error("ENV Variable ALCHEMY_API_KEY not set!");
 }
 
 const accounts = [process.env.DEPLOYER_PRIVATE_KEY || ""];
