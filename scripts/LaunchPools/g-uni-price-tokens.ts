@@ -11,9 +11,10 @@ const bigOne = ten.pow(18);
 
 const POOL_GET_WETH = "0xae666F497e3b03415503785df36f795e6D91d4b3"; // Gelato Uniswap GEL/WETH LP
 const POOL_USDC_WETH = "0xa6c49fd13e50a30c65e6c8480aada132011d0613"; // Gelato Uniswap USDC/WETH LP
+const POOL_UAD_USDC = "0xa9514190cbbad624c313ea387a18fd1dea576cbd"; // Gelato Uniswap uAD/USDC LP
 
 const api = "https://api.thegraph.com/subgraphs/name/gelatodigital/g-uni";
-const query = fs.readFileSync("pools.gql", "utf8");
+const query = fs.readFileSync("g-uni-pools-full.gql", "utf8");
 
 const runQuery = async (poolAddress: string): Promise<any> => {
   const body = JSON.stringify({ query, variables: { address: poolAddress.toLowerCase() } });
@@ -25,7 +26,7 @@ const priceQuery = async (poolAddress: string) => {
   const res: any = await runQuery(poolAddress);
 
   const pool0 = res.data.pools[0];
-  // console.log(JSON.stringify(pool0, null, "  "));
+  console.log(JSON.stringify(pool0, null, "  "));
 
   const dec0 = Number(pool0.token0.decimals);
   const name0 = pool0.token0.name;
@@ -63,6 +64,7 @@ const priceQuery = async (poolAddress: string) => {
 const main = async () => {
   await priceQuery(POOL_GET_WETH);
   await priceQuery(POOL_USDC_WETH);
+  // await priceQuery(POOL_UAD_USDC);
 };
 
 main().catch(console.error);

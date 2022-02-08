@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import fs from "fs";
 
 const api = "https://api.thegraph.com/subgraphs/name/gelatodigital/g-uni";
-const gql = fs.readFileSync("g-uni-pools-name.gql", "utf8");
+const gql = fs.readFileSync("g-uni-pools.gql", "utf8");
 
 const runQuery = async (url: string, query: Object, variables: Object): Promise<string> => {
   const res: Response = await fetch(url, { method: "POST", body: JSON.stringify({ query, variables }) });

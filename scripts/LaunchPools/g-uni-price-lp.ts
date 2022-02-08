@@ -14,7 +14,7 @@ const POOL_USDC_WETH = "0xa6c49fd13e50a30c65e6c8480aada132011d0613"; // Gelato U
 const POOL_UAD_USDC = "0xa9514190cbbad624c313ea387a18fd1dea576cbd"; // Gelato Uniswap uAD/USDC LP
 
 const apiGuni = "https://api.thegraph.com/subgraphs/name/gelatodigital/g-uni";
-const queryGuni = fs.readFileSync("g-uni-pools.gql", "utf8");
+const queryGuni = fs.readFileSync("g-uni-pools-full.gql", "utf8");
 const apiUniswap = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
 const queryUniswap = fs.readFileSync("uniswap-v3-pools-full.gql", "utf8");
 
@@ -43,6 +43,15 @@ const priceQuery = async (poolAddress: string) => {
   const name1 = poolGuni.token1.name;
   console.log(name1, dec1);
 
+  const liquidityUniswap = BigNumber.from(poolUniswap.liquidity);
+  console.log("liquidityUniswap", liquidityUniswap.toString());
+
+  const liquidityGuni = BigNumber.from(poolGuni.liquidity);
+  console.log("liquidityGuni", liquidityGuni.toString());
+
+  const liquidityRatio = liquidityUniswap.div(liquidityGuni);
+  console.log("liquidityRatio", liquidityRatio.toString());
+
   const totalSupply = poolGuni.totalSupply;
   console.log("totalSupply", totalSupply);
 
@@ -50,7 +59,7 @@ const priceQuery = async (poolAddress: string) => {
   const totalValueLockedUSD = BigNumber.from(`${partInt}${partDec.slice(0, 18)}`);
   console.log("totalValueLockedUSD", totalValueLockedUSD.toString());
 
-  const priceGuniLP = totalValueLockedUSD.div(totalSupply);
+  const priceGuniLP = totalValueLockedUSD.div(liquidityRatio).div(totalSupply);
   console.log("priceGuniLP", priceGuniLP.toString());
 
   console.log("-");

@@ -11,13 +11,23 @@ query Pools($address: ID) {
     liquidityProviderCount
     untrackedVolumeUSD
     volumeUSD
+    volumeToken0
+    volumeToken1
     sqrtPrice
     token0Price
     token1Price
     token0 {
       symbol
+      totalValueLocked
+      totalValueLockedUSD
+      totalValueLockedUSDUntracked
+      totalSupply
     }
     token1 {
+      totalSupply
+      totalValueLocked
+      totalValueLockedUSD
+      totalValueLockedUSDUntracked
       symbol
     }
   }

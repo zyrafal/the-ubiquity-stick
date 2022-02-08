@@ -2,34 +2,15 @@
 
 import type { Response } from "node-fetch";
 import fetch from "node-fetch";
+import fs from "fs";
 import { ethers, BigNumber, FixedNumber } from "ethers";
 
 const api = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
-const gql = `
-{
-  pools(where: {id: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"}) {
-    id
-    token0Price
-    liquidity
-    feeTier
-    totalValueLockedUSD
-    untrackedVolumeUSD
-    volumeUSD
-    sqrtPrice
-    token0Price
-    token1Price
-    token0 {
-      symbol
-    }
-    token1 {
-      symbol
-    }
-  }
-}
-`;
+const gql = fs.readFileSync("uniswap-v3-pools-full.gql", "utf8");
 
 const runQuery = async (url: string, query: Object): Promise<string> => {
-  const res: Response = await fetch(url, { method: "POST", body: JSON.stringify({ query }) });
+  const variables = { address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640" };
+  const res: Response = await fetch(url, { method: "POST", body: JSON.stringify({ query, variables }) });
   return await res.json();
 };
 
