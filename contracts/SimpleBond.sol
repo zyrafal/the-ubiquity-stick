@@ -129,7 +129,7 @@ contract SimpleBond is ISimpleBond, Ownable, Pausable {
         bnd.amount = amount;
         bnd.block = block.number;
 
-        uint256 rewards = (amount * rewardsRatio[token]) / 1_000_000_000;
+        uint256 rewards = rewardsCalculation(token, amount);
         bnd.rewards = rewards;
         totalRewards += rewards;
 
@@ -221,6 +221,13 @@ contract SimpleBond is ISimpleBond, Ownable, Pausable {
     /// @return number of bonds
     function bondsCount(address addr) public view override returns (uint256) {
         return bonds[addr].length;
+    }
+
+    /// @notice Calculates rewards
+    /// @param token token address
+    /// @param amount amount of token
+    function rewardsCalculation(address token, uint256 amount) internal view returns (uint256 rewards) {
+        rewards = (amount * rewardsRatio[token]) / 1e9;
     }
 
     /// @dev calculate claimable rewards during vesting period, or all claimable rewards after, minus already claimed

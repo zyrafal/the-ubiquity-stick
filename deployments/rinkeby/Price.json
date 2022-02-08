@@ -1,0 +1,140 @@
+{
+  "address": "0x30ff5f4eE7D73ea340A76D1a7AB3bC57b423369f",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string[]",
+          "name": "pairs",
+          "type": "string[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "adresses",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "pair",
+          "type": "string"
+        }
+      ],
+      "name": "getLatestPrice",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "priceFeeds",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xa88061d2a2b3d6d8f412289c0e108abff4d79ad00266bca6513b5a4a94fe2c29",
+  "receipt": {
+    "to": null,
+    "from": "0x6eebAe27d69fa80f0E4C0E973A2Fed218A56880c",
+    "contractAddress": "0x30ff5f4eE7D73ea340A76D1a7AB3bC57b423369f",
+    "transactionIndex": 54,
+    "gasUsed": "322528",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x36f1519273feab8bedc9974f4ed3610407ee14dd8630463ab415b78f6725d6f1",
+    "transactionHash": "0xa88061d2a2b3d6d8f412289c0e108abff4d79ad00266bca6513b5a4a94fe2c29",
+    "logs": [],
+    "blockNumber": 10133658,
+    "cumulativeGasUsed": "27515161",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    [
+      "ETH/USD",
+      "DAI/USD",
+      "USDC/USD"
+    ],
+    [
+      "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
+      "0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF",
+      "0xa24de01df22b63d23Ebc1882a5E3d4ec0d907bFB"
+    ]
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "5681de7f42c93bd2d910b04e047bc209",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string[]\",\"name\":\"pairs\",\"type\":\"string[]\"},{\"internalType\":\"address[]\",\"name\":\"adresses\",\"type\":\"address[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"pair\",\"type\":\"string\"}],\"name\":\"getLatestPrice\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"name\":\"priceFeeds\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getLatestPrice(string)\":{\"notice\":\"Returns latest price\"},\"priceFeeds(string)\":{\"notice\":\"ChainLink priceFeeds per token pair\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Price.sol\":\"Price\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface AggregatorV3Interface {\\n  function decimals() external view returns (uint8);\\n\\n  function description() external view returns (string memory);\\n\\n  function version() external view returns (uint256);\\n\\n  // getRoundData and latestRoundData should both raise \\\"No data present\\\"\\n  // if they do not have data to report, instead of returning unset values\\n  // which could be misinterpreted as actual reported values.\\n  function getRoundData(uint80 _roundId)\\n    external\\n    view\\n    returns (\\n      uint80 roundId,\\n      int256 answer,\\n      uint256 startedAt,\\n      uint256 updatedAt,\\n      uint80 answeredInRound\\n    );\\n\\n  function latestRoundData()\\n    external\\n    view\\n    returns (\\n      uint80 roundId,\\n      int256 answer,\\n      uint256 startedAt,\\n      uint256 updatedAt,\\n      uint80 answeredInRound\\n    );\\n}\\n\",\"keccak256\":\"0xf2b6c9adb3552254df1445b73563cf014434ff5e78663e9b961b6c059506ceb5\",\"license\":\"MIT\"},\"contracts/Price.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.9;\\n\\nimport \\\"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\\\";\\n\\ncontract Price {\\n    /// @notice ChainLink priceFeeds per token pair\\n    mapping(string => address) public priceFeeds;\\n\\n    constructor(string[] memory pairs, address[] memory adresses) {\\n        require(pairs.length == adresses.length, \\\"Invalid constructor params\\\");\\n        for (uint256 i = 0; i < pairs.length; i++) {\\n            priceFeeds[pairs[i]] = adresses[i];\\n        }\\n    }\\n\\n    /// @notice Returns latest price\\n    function getLatestPrice(string calldata pair) public view returns (int256) {\\n        (, int256 price, , , ) = AggregatorV3Interface(priceFeeds[pair]).latestRoundData();\\n        return price;\\n    }\\n}\\n\",\"keccak256\":\"0x0d23aff2967acd465f7fd26e01368fb0aa0a4c948ce467ae165879620bf1368c\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161070b38038061070b83398101604081905261002f91610236565b80518251146100845760405162461bcd60e51b815260206004820152601a60248201527f496e76616c696420636f6e7374727563746f7220706172616d73000000000000604482015260640160405180910390fd5b60005b8251811015610114578181815181106100a2576100a261035e565b602002602001015160008483815181106100be576100be61035e565b60200260200101516040516100d39190610374565b90815260405190819003602001902080546001600160a01b03929092166001600160a01b03199092169190911790558061010c81610390565b915050610087565b5050506103b9565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f191681016001600160401b038111828210171561015a5761015a61011c565b604052919050565b60006001600160401b0382111561017b5761017b61011c565b5060051b60200190565b60005b838110156101a0578181015183820152602001610188565b838111156101af576000848401525b50505050565b600082601f8301126101c657600080fd5b815160206101db6101d683610162565b610132565b82815260059290921b840181019181810190868411156101fa57600080fd5b8286015b8481101561022b5780516001600160a01b038116811461021e5760008081fd5b83529183019183016101fe565b509695505050505050565b600080604080848603121561024a57600080fd5b83516001600160401b038082111561026157600080fd5b8186019150601f878184011261027657600080fd5b825160206102866101d683610162565b82815260059290921b8501810191818101908b8411156102a557600080fd5b8287015b8481101561032b578051878111156102c15760008081fd5b8801603f81018e136102d35760008081fd5b84810151888111156102e7576102e761011c565b6102f8818901601f19168701610132565b8181528f8c83850101111561030d5760008081fd5b61031c828883018e8601610185565b855250509183019183016102a9565b50918a01519198509095505050508083111561034657600080fd5b5050610354858286016101b5565b9150509250929050565b634e487b7160e01b600052603260045260246000fd5b60008251610386818460208701610185565b9190910192915050565b60006000198214156103b257634e487b7160e01b600052601160045260246000fd5b5060010190565b610343806103c86000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063cb8ae86c1461003b578063f66a1b711461008c575b600080fd5b61006f61004936600461016b565b80516020818301810180516000825292820191909301209152546001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61009f61009a36600461021c565b6100ad565b604051908152602001610083565b600080600084846040516100c292919061028e565b9081526040805191829003602001822054633fabe5a360e21b835290516001600160a01b039091169163feaf968c9160048083019260a0929190829003018186803b15801561011057600080fd5b505afa158015610124573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061014891906102bd565b5091979650505050505050565b634e487b7160e01b600052604160045260246000fd5b60006020828403121561017d57600080fd5b813567ffffffffffffffff8082111561019557600080fd5b818401915084601f8301126101a957600080fd5b8135818111156101bb576101bb610155565b604051601f8201601f19908116603f011681019083821181831017156101e3576101e3610155565b816040528281528760208487010111156101fc57600080fd5b826020860160208301376000928101602001929092525095945050505050565b6000806020838503121561022f57600080fd5b823567ffffffffffffffff8082111561024757600080fd5b818501915085601f83011261025b57600080fd5b81358181111561026a57600080fd5b86602082850101111561027c57600080fd5b60209290920196919550909350505050565b8183823760009101908152919050565b805169ffffffffffffffffffff811681146102b857600080fd5b919050565b600080600080600060a086880312156102d557600080fd5b6102de8661029e565b94506020860151935060408601519250606086015191506103016080870161029e565b9050929550929590935056fea2646970667358221220a9adc04590da1ca970f8bd43b63ab40e7ac484f03c77960e976f75cdfdeafae464736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063cb8ae86c1461003b578063f66a1b711461008c575b600080fd5b61006f61004936600461016b565b80516020818301810180516000825292820191909301209152546001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61009f61009a36600461021c565b6100ad565b604051908152602001610083565b600080600084846040516100c292919061028e565b9081526040805191829003602001822054633fabe5a360e21b835290516001600160a01b039091169163feaf968c9160048083019260a0929190829003018186803b15801561011057600080fd5b505afa158015610124573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061014891906102bd565b5091979650505050505050565b634e487b7160e01b600052604160045260246000fd5b60006020828403121561017d57600080fd5b813567ffffffffffffffff8082111561019557600080fd5b818401915084601f8301126101a957600080fd5b8135818111156101bb576101bb610155565b604051601f8201601f19908116603f011681019083821181831017156101e3576101e3610155565b816040528281528760208487010111156101fc57600080fd5b826020860160208301376000928101602001929092525095945050505050565b6000806020838503121561022f57600080fd5b823567ffffffffffffffff8082111561024757600080fd5b818501915085601f83011261025b57600080fd5b81358181111561026a57600080fd5b86602082850101111561027c57600080fd5b60209290920196919550909350505050565b8183823760009101908152919050565b805169ffffffffffffffffffff811681146102b857600080fd5b919050565b600080600080600060a086880312156102d557600080fd5b6102de8661029e565b94506020860151935060408601519250606086015191506103016080870161029e565b9050929550929590935056fea2646970667358221220a9adc04590da1ca970f8bd43b63ab40e7ac484f03c77960e976f75cdfdeafae464736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getLatestPrice(string)": {
+        "notice": "Returns latest price"
+      },
+      "priceFeeds(string)": {
+        "notice": "ChainLink priceFeeds per token pair"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 53,
+        "contract": "contracts/Price.sol:Price",
+        "label": "priceFeeds",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_string_memory_ptr,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_string_memory_ptr,t_address)": {
+        "encoding": "mapping",
+        "key": "t_string_memory_ptr",
+        "label": "mapping(string => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_string_memory_ptr": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

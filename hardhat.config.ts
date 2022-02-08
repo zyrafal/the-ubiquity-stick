@@ -68,6 +68,11 @@ const config: HardhatUserConfig = {
       chainId: 4,
       url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts
+    },
+    kovan: {
+      chainId: 42,
+      url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts
     }
   },
 

@@ -1,0 +1,81 @@
+{
+  "address": "0x9C2FFEbD43BF02FAb4ef4b9729b161d65962475a",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "getLatestPrice",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x80f4766287f2058a780cec8b003b954b552a60c5e6526eb1a86f0760aed4de44",
+  "receipt": {
+    "to": null,
+    "from": "0x6eebAe27d69fa80f0E4C0E973A2Fed218A56880c",
+    "contractAddress": "0x9C2FFEbD43BF02FAb4ef4b9729b161d65962475a",
+    "transactionIndex": 0,
+    "gasUsed": "156995",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x27f2fff1fd958b7522cd0cde9e49c722462117808c91e59502c0419259d9202a",
+    "transactionHash": "0x80f4766287f2058a780cec8b003b954b552a60c5e6526eb1a86f0760aed4de44",
+    "logs": [],
+    "blockNumber": 29720835,
+    "cumulativeGasUsed": "156995",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "0211bff8248ed2ade9c1480d48dca68e",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"getLatestPrice\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Network: Kovan Aggregator: ETH/USD Address: 0x9326BFA02ADD2366b30bacB125260Af641031331\"},\"getLatestPrice()\":{\"notice\":\"Returns the latest price\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Price.sol\":\"Price\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface AggregatorV3Interface {\\n  function decimals() external view returns (uint8);\\n\\n  function description() external view returns (string memory);\\n\\n  function version() external view returns (uint256);\\n\\n  // getRoundData and latestRoundData should both raise \\\"No data present\\\"\\n  // if they do not have data to report, instead of returning unset values\\n  // which could be misinterpreted as actual reported values.\\n  function getRoundData(uint80 _roundId)\\n    external\\n    view\\n    returns (\\n      uint80 roundId,\\n      int256 answer,\\n      uint256 startedAt,\\n      uint256 updatedAt,\\n      uint80 answeredInRound\\n    );\\n\\n  function latestRoundData()\\n    external\\n    view\\n    returns (\\n      uint80 roundId,\\n      int256 answer,\\n      uint256 startedAt,\\n      uint256 updatedAt,\\n      uint80 answeredInRound\\n    );\\n}\\n\",\"keccak256\":\"0xf2b6c9adb3552254df1445b73563cf014434ff5e78663e9b961b6c059506ceb5\",\"license\":\"MIT\"},\"contracts/Price.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.7;\\n\\nimport \\\"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\\\";\\n\\ncontract Price {\\n    AggregatorV3Interface internal priceFeed;\\n\\n    /**\\n     * Network: Kovan\\n     * Aggregator: ETH/USD\\n     * Address: 0x9326BFA02ADD2366b30bacB125260Af641031331\\n     */\\n    constructor() {\\n        priceFeed = AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);\\n    }\\n\\n    /**\\n     * Returns the latest price\\n     */\\n    function getLatestPrice() public view returns (int256) {\\n        (, int256 price, , , ) = priceFeed.latestRoundData();\\n        return price;\\n    }\\n}\\n\",\"keccak256\":\"0x7d1a32ab1abb7e7366a2babb3cc4302c6d018804e87d934f37282c62afe98177\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50600080546001600160a01b031916739326bfa02add2366b30bacb125260af641031331179055610177806100466000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c80638e15f47314610030575b600080fd5b61003861004a565b60405190815260200160405180910390f35b6000805460408051633fabe5a360e21b8152905183926001600160a01b03169163feaf968c9160048083019260a0929190829003018186803b15801561008f57600080fd5b505afa1580156100a3573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100c791906100f1565b509195945050505050565b805169ffffffffffffffffffff811681146100ec57600080fd5b919050565b600080600080600060a0868803121561010957600080fd5b610112866100d2565b9450602086015193506040860151925060608601519150610135608087016100d2565b9050929550929590935056fea2646970667358221220bc673ddb91e607ebe071a68afdc84ffcc6141b8c51a4cc44b9ad0d8155afc58a64736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c80638e15f47314610030575b600080fd5b61003861004a565b60405190815260200160405180910390f35b6000805460408051633fabe5a360e21b8152905183926001600160a01b03169163feaf968c9160048083019260a0929190829003018186803b15801561008f57600080fd5b505afa1580156100a3573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100c791906100f1565b509195945050505050565b805169ffffffffffffffffffff811681146100ec57600080fd5b919050565b600080600080600060a0868803121561010957600080fd5b610112866100d2565b9450602086015193506040860151925060608601519150610135608087016100d2565b9050929550929590935056fea2646970667358221220bc673ddb91e607ebe071a68afdc84ffcc6141b8c51a4cc44b9ad0d8155afc58a64736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "constructor": {
+        "notice": "Network: Kovan Aggregator: ETH/USD Address: 0x9326BFA02ADD2366b30bacB125260Af641031331"
+      },
+      "getLatestPrice()": {
+        "notice": "Returns the latest price"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 51,
+        "contract": "contracts/Price.sol:Price",
+        "label": "priceFeed",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_contract(AggregatorV3Interface)45"
+      }
+    ],
+    "types": {
+      "t_contract(AggregatorV3Interface)45": {
+        "encoding": "inplace",
+        "label": "contract AggregatorV3Interface",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}

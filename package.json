@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@chainlink/contracts": "^0.3.1",
     "@codechecks/client": "^0.1.12",
     "@ethersproject/abi": "^5.5.0",
     "@ethersproject/abstract-provider": "^5.5.1",
@@ -30,9 +31,9 @@
     "@types/findup-sync": "^4.0.2",
     "@types/mocha": "^9.1.0",
     "@types/node": "^16.11.21",
+    "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-periphery": "^1.4.0",
-    "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/v3-sdk": "^3.8.2",
     "chai": "^4.3.4",
     "dotenv": "^10.0.0",

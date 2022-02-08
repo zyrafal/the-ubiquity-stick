@@ -1,6 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@chainlink/contracts': ^0.3.1
   '@codechecks/client': ^0.1.12
   '@ethersproject/abi': ^5.5.0
   '@ethersproject/abstract-provider': ^5.5.1
@@ -51,6 +52,7 @@ specifiers:
   typescript: ^4.5.4
 
 devDependencies:
+  '@chainlink/contracts': 0.3.1
   '@codechecks/client': 0.1.12_typescript@4.5.4
   '@ethersproject/abi': 5.5.0
   '@ethersproject/abstract-provider': 5.5.1
@@ -127,6 +129,10 @@ packages:
       '@babel/helper-validator-identifier': 7.16.7
       chalk: 2.4.2
       js-tokens: 4.0.0
+    dev: true
+
+  /@chainlink/contracts/0.3.1:
+    resolution: {integrity: sha512-A8DRvmfNCwLS1iduPPj7wNAZJMe9/ZimMhoHhbbBiq+7Vq/HFjiNcdoQ5NinFdXD5aTsoNUGG5pAYKj7YMpm9A==}
     dev: true
 
   /@codechecks/client/0.1.12_typescript@4.5.4:
