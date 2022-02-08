@@ -26,37 +26,34 @@ const priceQuery = async (poolAddress: string) => {
   const res: any = await runQuery(poolAddress);
 
   const pool0 = res.data.pools[0];
-  console.log(JSON.stringify(pool0, null, "  "));
+  // console.log(JSON.stringify(pool0, null, "  "));
 
   const dec0 = Number(pool0.token0.decimals);
-  const name0 = pool0.token0.name;
-  console.log(name0, dec0);
+  const symbol0 = pool0.token0.symbol;
+  // console.log(symbol0, dec0);
   const dec1 = Number(pool0.token1.decimals);
-  const name1 = pool0.token1.name;
-  console.log(name1, dec1);
+  const symbol1 = pool0.token1.symbol;
+  // console.log(symbol1, dec1);
 
   const sqrtPriceX96 = BigNumber.from(pool0.latestInfo.sqrtPriceX96);
-  console.log("sqrtPriceX96", sqrtPriceX96.toString());
+  // console.log("sqrtPriceX96", sqrtPriceX96.toString());
 
   const priceX96 = sqrtPriceX96.pow(2);
-  console.log("priceX96", priceX96.toString());
+  // console.log("priceX96", priceX96.toString());
 
   const deux192 = deuce.pow(192);
-  console.log("deux192", deux192.toString());
+  // console.log("deux192", deux192.toString());
 
   const price = priceX96.div(deux192);
-  console.log("price", price.toString());
+  // console.log("price", price.toString());
 
   const priceToken0 = ten.pow(dec0).mul(priceX96).div(deux192);
-  console.log("priceToken0", priceToken0.toString());
-  console.log("priceToken0", ethers.utils.formatEther(priceToken0));
+  // console.log("priceToken0", priceToken0.toString());
+  console.log("1", symbol0, "=", ethers.utils.formatUnits(priceToken0, dec1), symbol1);
 
-  const priceToken1 = ten
-    .pow(2 * dec1 - dec0)
-    .mul(deux192)
-    .div(priceX96);
-  console.log("priceToken1", priceToken1.toString());
-  console.log("priceToken1", ethers.utils.formatEther(priceToken1));
+  const priceToken1 = ten.pow(dec1).mul(deux192).div(priceX96);
+  // console.log("priceToken1", priceToken1.toString());
+  console.log("1", symbol1, "=", ethers.utils.formatUnits(priceToken1, dec0), symbol0);
 
   console.log("-");
 };
@@ -64,7 +61,7 @@ const priceQuery = async (poolAddress: string) => {
 const main = async () => {
   await priceQuery(POOL_GET_WETH);
   await priceQuery(POOL_USDC_WETH);
-  // await priceQuery(POOL_UAD_USDC);
+  await priceQuery(POOL_UAD_USDC);
 };
 
 main().catch(console.error);
