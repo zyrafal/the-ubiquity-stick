@@ -1,0 +1,15 @@
+query Pools($address: ID) {
+  pools(where: { id: $address }) {
+    id
+    liquidity
+    totalValueLockedUSD
+    token0Price
+    token1Price
+    token0 {
+      symbol
+    }
+    token1 {
+      symbol
+    }
+  }
+}

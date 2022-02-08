@@ -1,0 +1,38 @@
+query Pools($address: ID) {
+  pools(where: { id: $address }) {
+    id
+    name
+    blockCreated
+    manager
+    address
+    uniswapPool
+    token0 {
+      address
+      name
+      symbol
+      decimals
+    }
+    token1 {
+      address
+      name
+      symbol
+      decimals
+    }
+    feeTier
+    liquidity
+    lowerTick
+    upperTick
+    totalSupply
+    positionId
+    latestInfo {
+      sqrtPriceX96
+      reserves0
+      reserves1
+      leftover0
+      leftover1
+      unclaimedFees0
+      unclaimedFees1
+      block
+    }
+  }
+}

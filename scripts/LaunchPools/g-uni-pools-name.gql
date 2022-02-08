@@ -1,0 +1,5 @@
+query Pools($address: ID) {
+  pools(where: { id: $address }) {
+    name
+  }
+}
