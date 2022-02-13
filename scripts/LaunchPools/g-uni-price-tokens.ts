@@ -49,13 +49,13 @@ const priceQuery = async (poolAddress: string) => {
 
   const priceToken0 = ten.pow(dec0).mul(priceX96).div(deux192);
   // console.log("priceToken0", priceToken0.toString());
-  console.log("1", symbol0, "=", ethers.utils.formatUnits(priceToken0, dec1), symbol1);
+  console.log("1", symbol0.padEnd(4), "=", ethers.utils.formatUnits(priceToken0, dec1).padEnd(24), symbol1);
 
   const priceToken1 = ten.pow(dec1).mul(deux192).div(priceX96);
   // console.log("priceToken1", priceToken1.toString());
-  console.log("1", symbol1, "=", ethers.utils.formatUnits(priceToken1, dec0), symbol0);
+  console.log("1", symbol1.padEnd(4), "=", ethers.utils.formatUnits(priceToken1, dec0).padEnd(24), symbol0);
 
-  console.log("-");
+  console.log("");
 };
 
 const main = async () => {
