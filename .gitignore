@@ -8,7 +8,11 @@ artifacts
 coverage
 assets
 types
-
-.DS_Store
-
 deployments/localhost
+
+# foundry
+cache
+out
+
+#MacOS
+.DS_Store
