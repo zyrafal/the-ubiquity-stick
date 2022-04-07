@@ -76,10 +76,16 @@ const config: HardhatUserConfig = {
       url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts
     },
+    kovan: {
+      loggingEnabled: true,
+      chainId: 42,
+      url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts
+    },
     rinkeby: {
       loggingEnabled: true,
       chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${process.env.ALCHEMY_API_KEY}`,
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts
     }
   },
