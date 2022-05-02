@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers, deployments, network, getChainId } from "hardhat";
-import { TheUbiquityStick } from "../types/TheUbiquityStick";
-import tokenURIs from "../metadata/json.json";
+import { TheUbiquityStick } from "types/TheUbiquityStick";
+import tokenURIs from "metadata/json.json";
 import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 
 describe("TheUbiquityStick", function () {
@@ -35,12 +35,12 @@ describe("TheUbiquityStick", function () {
     console.log("owner", owner);
   });
 
-  it("Check contract ok", async function () {
+  it("Check Contract Addresses", async function () {
     expect(theUbiquityStick.address).to.be.properAddress;
     expect(await theUbiquityStick.owner()).to.be.properAddress;
   });
 
-  it("Check with ERC165 that theUbiquityStick is ERC721, ERC721Metadata, ERC721Enumerable compatible and not ERC721TokenReceiver", async function () {
+  it("Check Contract is ERC721, ERC721Metadata, ERC721Enumerable and not ERC721TokenReceiver", async function () {
     const ERC721 = "0x80ac58cd";
     const ERC721TokenReceiver = "0x150b7a02";
     const ERC721Metadata = "0x5b5e139f";
@@ -52,11 +52,14 @@ describe("TheUbiquityStick", function () {
     expect(await theUbiquityStick.supportsInterface(ERC721TokenReceiver)).to.be.false;
   });
 
-  it("Check mint", async function () {
-    // 1 NFT for tester 2 and 2 NFTs for tester1.address , second one will be burn
+  it("Check Minting for minter", async function () {
+    // 2 NFTs for tester 1 and 1 NFT for tester2
     await expect((await theUbiquityStick.connect(minter).safeMint(tester1.address)).wait()).to.be.not.reverted;
     await expect((await theUbiquityStick.connect(minter).safeMint(tester2.address)).wait()).to.be.not.reverted;
     await expect((await theUbiquityStick.connect(minter).safeMint(tester1.address)).wait()).to.be.not.reverted;
+  });
+
+  it("Check Minting Forbidden for non-minter", async function () {
     await expect(theUbiquityStick.connect(tester1).safeMint(tester1.address)).to.be.reverted;
   });
 
