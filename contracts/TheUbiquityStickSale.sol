@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "./interfaces/ITheUbiquityStick.sol";
 
 contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
@@ -19,7 +21,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
   }
 
   // TheUbiquityStick token contract interface
-  ITheUbiquityStick public tokenContract;
+  address public tokenContract;
 
   // Stores the allowed minting count and token price for each whitelisted address
   mapping(address => Purchase) private _allowances;
@@ -41,7 +43,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
 
   function setTokenContract(address _newTokenContract) external onlyOwner {
     require(_newTokenContract != address(0), "Invalid Address");
-    tokenContract = ITheUbiquityStick(_newTokenContract);
+    tokenContract = _newTokenContract;
   }
 
   function setFundsAddress(address _address) external onlyOwner {
@@ -82,8 +84,8 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
   // Handles token purchases
   receive() external payable nonReentrant {
     // Check if tokens are still available for sale
-    require(tokenContract.totalSupply() < MAXIMUM_SUPPLY, "Sold Out");
-    uint256 remainingTokenCount = MAXIMUM_SUPPLY - tokenContract.totalSupply();
+    require(IERC721Enumerable(tokenContract).totalSupply() < MAXIMUM_SUPPLY, "Sold Out");
+    uint256 remainingTokenCount = MAXIMUM_SUPPLY - IERC721Enumerable(tokenContract).totalSupply();
 
     // Check if sufficient funds are sent, and that the address is whitelisted
     // and had enough allowance with enough funds
@@ -100,7 +102,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
     _allowances[msg.sender].count -= count;
 
     uint256 paid = count * price;
-    tokenContract.batchSafeMint(msg.sender, count);
+    ITheUbiquityStick(tokenContract).batchSafeMint(msg.sender, count);
     emit Mint(msg.sender, count, paid);
 
     // Calculate any excess/unspent funds and transfer it back to the buyer

@@ -9,6 +9,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
+import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
@@ -90,17 +91,21 @@ const config: HardhatUserConfig = {
       accounts
     }
   },
+
   gasReporter: {
     enabled: REPORT_GAS !== undefined,
     currency: "USD"
   },
+
   etherscan: {
     apiKey: ETHERSCAN_API_KEY || ""
   },
+
   typechain: {
     outDir: "types",
     target: "ethers-v5"
   },
+
   paths: {
     sources: "contracts",
     deploy: "deploy",
@@ -110,6 +115,18 @@ const config: HardhatUserConfig = {
     cache: "artifacts/cache",
     artifacts: "artifacts"
   },
+
+  abiExporter: [
+    {
+      runOnCompile: true,
+      clear: false,
+      flat: true,
+      spacing: 2,
+      pretty: true,
+      path: "abis"
+    }
+  ],
+
   mocha: {
     timeout: 1_000_000,
     bail: true

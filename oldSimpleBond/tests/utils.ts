@@ -1,5 +1,5 @@
 import hre, { ethers, network } from "hardhat";
-import hardhatConfig from "../hardhat.config";
+import hardhatConfig from "../../hardhat.config";
 
 export async function forkReset(blockNumber: any) {
   await hre.network.provider.request({
