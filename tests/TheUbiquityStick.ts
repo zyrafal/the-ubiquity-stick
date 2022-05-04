@@ -182,7 +182,7 @@ describe("TheUbiquityStick", () => {
     });
   });
 
-  describe.only("NFT Royalties", () => {
+  describe("NFT Royalties", () => {
     const defaultRoyalties = 100; // 100/10000 = 1%
     const tokenRoyalties = 200; // 200/10000 = 2%
     const price = eth.mul(100);

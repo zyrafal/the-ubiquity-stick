@@ -8,21 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ITheUbiquityStick.sol";
 
-/// @title OpenNFTs smartcontract
-/// @notice With "The UbiquiStick" NFT contract, you can :
-/// @notice - get all ERC721 functionnality https://eips.ethereum.org/EIPS/eip-721
-/// @notice   - including check that someone as a NFT of the collection with « balanceOf »
-/// @notice   - including check who is TokenID owner with « ownerOf »
-/// @notice   - including optional ERC721Metadata
-/// @notice     but without metadata JSON schema
-/// @notice     with 3 types of NFTs : standard, gold and invisible, each one having same metadata
-/// @notice     with 3 different tokenURIs
-/// @notice   - including optional ERC721Enumerable
-/// @notice - get you NFT listed on OpenSea (on mainnet or matic only)
-/// @notice  - allow NFT owner to burn it’s own NFT
-/// @notice - allow one owner (deployer at start) to change tokenURIs (setTokenURI),
-/// @notice   and change minter (setMinter) and transfer it's owner role to someone else
-/// @notice - allow one minter to mint NFT (safeMint)
+/// @title TheUbiquityStick smartcontract
 contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721Enumerable, ERC2981, Ownable {
   ///
   /// @notice tokenID of next minted NFT
@@ -94,6 +80,7 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
     } else if (ntype == INVISIBLE_TYPE) {
       _invisibleTokenURI = newTokenURI;
     }
+    emit SetTokenURI(ntype, newTokenURI);
   }
 
   /// @notice SET tokenMutableURI, only allowed to owner
@@ -111,6 +98,7 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
   /// @param minter_ : minter address
   function setMinter(address minter_) public override(ITheUbiquityStick) onlyOwner {
     minter = minter_;
+    emit SetMinter(minter);
   }
 
   /// @notice MINT function only allowed to minter
@@ -140,6 +128,10 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
     return uint256(keccak256(abi.encodePacked(block.difficulty, block.timestamp, msg.sender, tokenIdNext)));
   }
 
+  /// @notice pseudo random function
+  /// @param from : owner address of the sender
+  /// @param to : owner address of the receiver
+  /// @param tokenID : token ID of the NFT
   function _beforeTokenTransfer(
     address from,
     address to,
@@ -148,10 +140,14 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
     super._beforeTokenTransfer(from, to, tokenID);
   }
 
+  /// @notice pseudo random function
   function _existsMutable(uint256 tokenID) internal view virtual returns (bool) {
     return bytes(_tokenURIs[tokenID]).length > 0;
   }
 
+  /// @notice pseudo random function
+  /// @param interfaceId : interface ID
+  /// @return true if the interface is implemented
   function supportsInterface(bytes4 interfaceId)
     public
     view
@@ -161,23 +157,37 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
     return super.supportsInterface(interfaceId);
   }
 
+  /// @notice SET default royalty configuration
+  /// @param receiver : address of the royalty receiver
+  /// @param feeNumerator : fee Numerator, over 10000
   function setDefaultRoyalty(address receiver, uint96 feeNumerator) public onlyMinter {
     _setDefaultRoyalty(receiver, feeNumerator);
+    emit SetDefaultRoyalty(receiver, feeNumerator);
   }
 
+  /// @notice SET token royalty configuration
+  /// @param tokenID : token ID
+  /// @param receiver : address of the royalty receiver
+  /// @param feeNumerator : fee Numerator, over 10000
   function setTokenRoyalty(
-    uint256 tokenId,
+    uint256 tokenID,
     address receiver,
     uint96 feeNumerator
   ) public onlyMinter {
-    _setTokenRoyalty(tokenId, receiver, feeNumerator);
+    _setTokenRoyalty(tokenID, receiver, feeNumerator);
+    emit SetTokenRoyalty(tokenID, receiver, feeNumerator);
   }
 
-  function resetTokenRoyalty(uint256 tokenId) public onlyMinter {
-    _resetTokenRoyalty(tokenId);
+  /// @notice RESET token royalty configuration
+  /// @param tokenID : token ID
+  function resetTokenRoyalty(uint256 tokenID) public onlyMinter {
+    _resetTokenRoyalty(tokenID);
+    emit SetTokenRoyalty(tokenID, address(0), 0);
   }
 
+  /// @notice DELETE default royalty configuration
   function deleteDefaultRoyalty() public onlyMinter {
     _deleteDefaultRoyalty();
+    emit SetDefaultRoyalty(address(0), 0);
   }
 }

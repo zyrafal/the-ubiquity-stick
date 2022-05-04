@@ -1,7 +1,7 @@
 import type { DeployFunction } from "hardhat-deploy/types";
 import tokenURIs from "../metadata/json.json";
 
-const deployTheUbiquityStick: DeployFunction = async function ({ ethers, deployments, getNamedAccounts }) {
+const deployTheUbiquityStick: DeployFunction = async function ({ ethers, deployments }) {
   const { deploy } = deployments;
   const deployer = await ethers.getNamedSigner("deployer");
   console.log("deployer", deployer.address);

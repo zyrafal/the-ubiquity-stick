@@ -3,8 +3,12 @@ pragma solidity ^0.8.9;
 
 interface ITheUbiquityStick {
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// @notice MINTING FUNCTIONS
+  /// @notice MINTING EVENTS and FUNCTIONS
   ////////////////////////////////////////////////////////////////////////////////////////////////////
+  event SetMinter(address minter);
+
+  event SetTokenURI(uint256 ntype, string contractURI);
+
   function setMinter(address minter_) external;
 
   function safeMint(address to) external;
@@ -36,5 +40,9 @@ interface ITheUbiquityStick {
   function resetTokenRoyalty(uint256 tokenId) external;
 
   function deleteDefaultRoyalty() external;
+
+  /// @notice ROYALTY EVENTS
+  event SetDefaultRoyalty(address receiver, uint96 feeNumerator);
+  event SetTokenRoyalty(uint256 tokenID, address receiver, uint96 feeNumerator);
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 }

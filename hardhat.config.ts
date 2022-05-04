@@ -27,7 +27,7 @@ if (!process.env.ALCHEMY_API_KEY) {
     throw new Error("HARDHAT : ENV variable ALCHEMY_API_KEY or DEPLOYER_PRIVATE_KEY not set!");
   }
 }
-const { DEPLOYER_PRIVATE_KEY, ALCHEMY_API_KEY, ETHERSCAN_API_KEY, REPORT_GAS } = process.env;
+const { DEPLOYER_PRIVATE_KEY, ALCHEMY_API_KEY, INFURA_API_KEY, ETHERSCAN_API_KEY, REPORT_GAS } = process.env;
 
 const accounts = [DEPLOYER_PRIVATE_KEY || ""];
 for (let i = 1; i <= 5; i++) accounts.push(Wallet.createRandom().privateKey);
@@ -87,7 +87,7 @@ const config: HardhatUserConfig = {
     rinkeby: {
       loggingEnabled: true,
       chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${ALCHEMY_API_KEY}`,
+      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts
     }
   },
