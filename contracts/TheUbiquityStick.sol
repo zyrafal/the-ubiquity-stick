@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -22,7 +23,7 @@ import "./interfaces/ITheUbiquityStick.sol";
 /// @notice - allow one owner (deployer at start) to change tokenURIs (setTokenURI),
 /// @notice   and change minter (setMinter) and transfer it's owner role to someone else
 /// @notice - allow one minter to mint NFT (safeMint)
-contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721Enumerable, Ownable {
+contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721Enumerable, ERC2981, Ownable {
   ///
   /// @notice tokenID of next minted NFT
   /// @notice equal to the number of NFT already minted
@@ -63,8 +64,11 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
 
   /// @notice TheUbiquityStick constructor
   /// @notice First owner is the deployer
-  constructor() ERC721("The UbiquiStick", "KEY") {
+  constructor(string[] memory tokenURIs) ERC721("The UbiquiStick", "KEY") {
     setMinter(msg.sender);
+    setTokenURI(0, tokenURIs[0]);
+    setTokenURI(1, tokenURIs[1]);
+    setTokenURI(2, tokenURIs[2]);
   }
 
   /// @notice GET tokenURI
@@ -148,7 +152,32 @@ contract TheUbiquityStick is ITheUbiquityStick, ERC721, ERC721Burnable, ERC721En
     return bytes(_tokenURIs[tokenID]).length > 0;
   }
 
-  function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+  function supportsInterface(bytes4 interfaceId)
+    public
+    view
+    override(ERC721, ERC721Enumerable, ERC2981)
+    returns (bool)
+  {
     return super.supportsInterface(interfaceId);
+  }
+
+  function setDefaultRoyalty(address receiver, uint96 feeNumerator) public onlyMinter {
+    _setDefaultRoyalty(receiver, feeNumerator);
+  }
+
+  function setTokenRoyalty(
+    uint256 tokenId,
+    address receiver,
+    uint96 feeNumerator
+  ) public onlyMinter {
+    _setTokenRoyalty(tokenId, receiver, feeNumerator);
+  }
+
+  function resetTokenRoyalty(uint256 tokenId) public onlyMinter {
+    _resetTokenRoyalty(tokenId);
+  }
+
+  function deleteDefaultRoyalty() public onlyMinter {
+    _deleteDefaultRoyalty();
   }
 }

@@ -3,6 +3,7 @@ import { ethers, deployments, network, getChainId } from "hardhat";
 import { TheUbiquityStick } from "types/TheUbiquityStick";
 import tokenURIs from "metadata/jsonTests.json";
 import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
+import { BigNumber } from "ethers";
 
 describe("TheUbiquityStick", () => {
   let theUbiquityStick: TheUbiquityStick;
@@ -12,6 +13,11 @@ describe("TheUbiquityStick", () => {
   let tester1: SignerWithAddress;
   let tester2: SignerWithAddress;
   let random: SignerWithAddress;
+
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
+  const zero = BigNumber.from(0);
+  const ten = BigNumber.from(10);
+  const eth = ten.pow(18);
 
   before(async () => {
     const chainId = Number(await getChainId());
@@ -176,5 +182,79 @@ describe("TheUbiquityStick", () => {
     });
   });
 
-  describe("NFT Royalties", () => {});
+  describe.only("NFT Royalties", () => {
+    const defaultRoyalties = 100; // 100/10000 = 1%
+    const tokenRoyalties = 200; // 200/10000 = 2%
+    const price = eth.mul(100);
+    let tokenId: number;
+
+    before(async () => {
+      tokenId = Number(await theUbiquityStick.tokenIdNext());
+      (await theUbiquityStick.connect(minter).safeMint(tester1.address)).wait();
+    });
+
+    it("Should supports royalties", async () => {
+      const ERC2981 = "0x2a55205a";
+      expect(await theUbiquityStick.supportsInterface(ERC2981)).to.be.true;
+    });
+
+    it("Should get default null royalties", async () => {
+      const royaltyInfo = await theUbiquityStick.royaltyInfo(tokenId, price);
+      expect(royaltyInfo).to.be.eql([zeroAddress, zero]);
+    });
+
+    it("Should set default royalties", async () => {
+      await theUbiquityStick.connect(minter).setDefaultRoyalty(tester2.address, defaultRoyalties);
+
+      const royaltyInfo = await theUbiquityStick.royaltyInfo(tokenId, price);
+      expect(royaltyInfo).to.be.eql([tester2.address, price.mul(defaultRoyalties).div(10000)]);
+    });
+
+    it("Should set token royalties", async () => {
+      await theUbiquityStick.connect(minter).setTokenRoyalty(tokenId, tester2.address, tokenRoyalties);
+
+      const royaltyInfo = await theUbiquityStick.royaltyInfo(tokenId, price);
+      expect(royaltyInfo).to.be.eql([tester2.address, price.mul(tokenRoyalties).div(10000)]);
+    });
+
+    it("Should get token royalties over default royalties", async () => {
+      await theUbiquityStick.connect(minter).setDefaultRoyalty(tester2.address, defaultRoyalties);
+      await theUbiquityStick.connect(minter).setTokenRoyalty(tokenId, tester2.address, tokenRoyalties);
+
+      const royaltyInfo = await theUbiquityStick.royaltyInfo(tokenId, price);
+      expect(royaltyInfo).to.be.not.eql([tester2.address, price.mul(defaultRoyalties).div(10000)]);
+      expect(royaltyInfo).to.be.eql([tester2.address, price.mul(tokenRoyalties).div(10000)]);
+    });
+
+    it("Should reset token royalties", async () => {
+      await theUbiquityStick.connect(minter).deleteDefaultRoyalty();
+
+      await theUbiquityStick.connect(minter).setTokenRoyalty(tokenId, tester2.address, tokenRoyalties);
+      await theUbiquityStick.connect(minter).resetTokenRoyalty(tokenId);
+
+      const royaltyInfo = await theUbiquityStick.royaltyInfo(tokenId, price);
+      expect(royaltyInfo).to.be.eql([zeroAddress, zero]);
+    });
+
+    it("Should delete default royalties", async () => {
+      await theUbiquityStick.connect(minter).resetTokenRoyalty(tokenId);
+
+      await theUbiquityStick.connect(minter).setDefaultRoyalty(tester2.address, tokenRoyalties);
+      await theUbiquityStick.connect(minter).deleteDefaultRoyalty();
+
+      const royaltyInfo = await theUbiquityStick.royaltyInfo(tokenId, price);
+      expect(royaltyInfo).to.be.eql([zeroAddress, zero]);
+    });
+
+    it("Should not set royalties if not minter", async () => {
+      await expect(theUbiquityStick.connect(tester1).setDefaultRoyalty(tester1.address, 100)).to.be.revertedWith(
+        "Not minter"
+      );
+      await expect(theUbiquityStick.connect(tester1).setTokenRoyalty(tokenId, tester1.address, 100)).to.be.revertedWith(
+        "Not minter"
+      );
+      await expect(theUbiquityStick.connect(tester1).resetTokenRoyalty(tokenId)).to.be.revertedWith("Not minter");
+      await expect(theUbiquityStick.connect(tester1).deleteDefaultRoyalty()).to.be.revertedWith("Not minter");
+    });
+  });
 });
