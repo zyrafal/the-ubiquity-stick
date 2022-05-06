@@ -8,6 +8,7 @@ artifacts
 coverage
 assets
 types
+abis
 
 .DS_Store
 

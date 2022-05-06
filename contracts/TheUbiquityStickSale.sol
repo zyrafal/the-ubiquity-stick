@@ -8,9 +8,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./interfaces/ITheUbiquityStick.sol";
 
-contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "./interfaces/ITheUbiquityStick.sol";
+import "./interfaces/ITheUbiquityStickSale.sol";
+
+contract TheUbiquityStickSale is ITheUbiquityStickSale, Ownable, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
   struct Purchase {
@@ -19,7 +22,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
   }
 
   // TheUbiquityStick token contract interface
-  ITheUbiquityStick public tokenContract;
+  address public tokenContract;
 
   // Stores the allowed minting count and token price for each whitelisted address
   mapping(address => Purchase) private _allowances;
@@ -29,68 +32,21 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
 
   uint256 public constant MAXIMUM_SUPPLY = 1024;
   uint256 public constant MAXIMUM_PER_TX = 10;
-  address private constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
-  event Mint(address from, uint256 count, uint256 price);
 
-  event Payback(address to, uint256 unspent);
-
-  event Withdraw(address to, address token, uint256 amount);
-
-  constructor() {}
-
-  function setTokenContract(address _newTokenContract) external onlyOwner {
-    require(_newTokenContract != address(0), "Invalid Address");
-    tokenContract = ITheUbiquityStick(_newTokenContract);
-  }
-
-  function setFundsAddress(address _address) external onlyOwner {
-    require(_address != address(0), "Invalid Address");
-    fundsAddress = _address;
-  }
-
-  // Set the allowance for the specified address
-  function setAllowance(
-    address _address,
-    uint256 _count,
-    uint256 _price
-  ) public onlyOwner {
-    require(_address != address(0), "Invalid Address");
-    _allowances[_address] = Purchase(_count, _price);
-  }
-
-  // Set the allowance for the specified address
-  function batchSetAllowances(
-    address[] calldata _addresses,
-    uint256[] calldata _counts,
-    uint256[] calldata _prices
-  ) external onlyOwner {
-    uint256 count = _addresses.length;
-
-    for (uint16 i = 0; i < count; i++) {
-      setAllowance(_addresses[i], _counts[i], _prices[i]);
-    }
-  }
-
-  // Get the allowance for the specified address
-  function allowance(address _address) public view returns (uint256 count, uint256 price) {
-    Purchase memory _allowance = _allowances[_address];
-    count = _allowance.count;
-    price = _allowance.price;
-  }
 
   // Handles token purchases
-  receive() external payable nonReentrant {
+  receive() external payable override(ITheUbiquityStickSale) nonReentrant {
     // Check if tokens are still available for sale
-    require(tokenContract.totalSupply() < MAXIMUM_SUPPLY, "Sold Out");
-    uint256 remainingTokenCount = MAXIMUM_SUPPLY - tokenContract.totalSupply();
+    require(IERC721Enumerable(tokenContract).totalSupply() < MAXIMUM_SUPPLY, "Sold Out");
+    uint256 remainingTokenCount = MAXIMUM_SUPPLY - IERC721Enumerable(tokenContract).totalSupply();
 
     // Check if sufficient funds are sent, and that the address is whitelisted
     // and had enough allowance with enough funds
     uint256 count;
     uint256 price;
     (count, price) = allowance(msg.sender);
-    require(count > 0, "Not Whitelisted For The Sale Or Insufficient Allowance");
+    require(count > 0, "Not Whitelisted or no Allowance");
 
     if (remainingTokenCount < count) count = remainingTokenCount;
     if (msg.value < count * price) count = msg.value / price;
@@ -100,7 +56,7 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
     _allowances[msg.sender].count -= count;
 
     uint256 paid = count * price;
-    tokenContract.batchSafeMint(msg.sender, count);
+    ITheUbiquityStick(tokenContract).batchSafeMint(msg.sender, count);
     emit Mint(msg.sender, count, paid);
 
     // Calculate any excess/unspent funds and transfer it back to the buyer
@@ -111,7 +67,47 @@ contract TheUbiquityStickSale is Ownable, ReentrancyGuard {
     }
   }
 
-  function withdraw() public nonReentrant onlyOwner {
+  function setTokenContract(address newTokenContract) external override(ITheUbiquityStickSale) onlyOwner {
+    require(newTokenContract != address(0), "Invalid Address");
+    tokenContract = newTokenContract;
+  }
+
+  function setFundsAddress(address addr) external override(ITheUbiquityStickSale) onlyOwner {
+    require(addr != address(0), "Invalid Address");
+    fundsAddress = addr;
+  }
+
+  // Set the allowance for the specified address
+  function batchSetAllowances(
+    address[] calldata addresses,
+    uint256[] calldata counts,
+    uint256[] calldata prices
+  ) external override(ITheUbiquityStickSale) onlyOwner {
+    uint256 count = addresses.length;
+
+    for (uint16 i = 0; i < count; i++) {
+      setAllowance(addresses[i], counts[i], prices[i]);
+    }
+  }
+
+  function withdraw() external override(ITheUbiquityStickSale) nonReentrant onlyOwner {
     payable(fundsAddress).transfer(address(this).balance);
+  }
+
+  // Set the allowance for the specified address
+  function setAllowance(
+    address addr,
+    uint256 count,
+    uint256 price
+  ) public override(ITheUbiquityStickSale) onlyOwner {
+    require(addr != address(0), "Invalid Address");
+    _allowances[addr] = Purchase(count, price);
+  }
+
+  // Get the allowance for the specified address
+  function allowance(address addr) public view override(ITheUbiquityStickSale) returns (uint256 count, uint256 price) {
+    Purchase memory allowance_ = _allowances[addr];
+    count = allowance_.count;
+    price = allowance_.price;
   }
 }
