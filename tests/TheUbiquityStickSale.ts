@@ -191,7 +191,7 @@ describe("TheUbiquityStickSale", () => {
     it("Check Mint not possible without allowance", async () => {
       await expect(
         randomSigner.sendTransaction({ to: theUbiquityStickSale.address, value: one.add(gas) })
-      ).to.be.revertedWith("Not Whitelisted For The Sale Or Insufficient Allowance");
+      ).to.be.revertedWith("Not Whitelisted or no Allowance");
     });
 
     it("Check Mint 10 maximum per transaction", async () => {
